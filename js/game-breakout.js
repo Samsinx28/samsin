@@ -766,6 +766,34 @@ window.brkStart = function() {
     animId = requestAnimationFrame(loop);
 };
 
+/* Pause / resume — called by mobile button */
+window.brkPause = function() {
+    if (!running || gameOver) return;
+    paused = !paused;
+    if (!paused) lastTs = performance.now();
+    const btn = document.getElementById('brk-pause-btn');
+    if (btn) btn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+};
+
+/* Restart — called by mobile button */
+window.brkRestart = function() {
+    window.brkStart();
+};
+
+/* Inject mobile control buttons below the HUD strip — no HTML edit needed */
+(function() {
+    const layout = document.querySelector('.brk-layout');
+    if (!layout) return;
+    const controls = document.createElement('div');
+    controls.className = 'brk-mobile-controls';
+    controls.innerHTML =
+        '<button id="brk-pause-btn"   class="btn btn-ghost brk-mobile-btn" onclick="brkPause()">⏸ Pause</button>' +
+        '<button id="brk-restart-btn" class="btn btn-ghost brk-mobile-btn" onclick="brkRestart()">↺ Restart</button>';
+    layout.parentNode.insertAfter
+        ? layout.parentNode.insertAfter(controls, layout)
+        : layout.after(controls);
+})();
+
 // ── Mouse / pointer input ─────────────────────────
 canvas.addEventListener('mousemove', e => {
     const rect = canvas.getBoundingClientRect();
