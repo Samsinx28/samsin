@@ -40,8 +40,8 @@
     align-items: center;
     margin-bottom: 0.35rem;
 }
-.meter-name { font-family: var(--font-code); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; }
-.meter-val  { font-family: var(--font-code); font-size: 0.72rem; color: var(--c); }
+.meter-name { font-family: var(--font-code); font-size: 0.72rem; color: #c8dada; letter-spacing: 0.1em; }
+.meter-val  { font-family: var(--font-code); font-size: 0.72rem; color: #ffffff; }
 
 .meter-track {
     height: 4px;

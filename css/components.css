@@ -238,7 +238,7 @@ body:has(button:hover) #cursor-ring {
 .service-card ul { list-style: none; }
 .service-card li {
     padding: 0.45rem 0;
-    color: var(--muted);
+    color: #fff;
     font-size: 0.9rem;
     border-bottom: 1px solid var(--border);
     display: flex;
@@ -350,7 +350,7 @@ body:has(button:hover) #cursor-ring {
     display: block;
     font-family: var(--font-code);
     font-size: 0.72rem;
-    color: var(--muted);
+    color: #ffffff;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     margin-bottom: 0.4rem;

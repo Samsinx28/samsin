@@ -211,7 +211,7 @@ nav {
     font-weight: 900;
     line-height: 1.15;
     margin-bottom: 1.5rem;
-    color: #fff;
+    color: #ffffff;
 }
 .hero h1 .line2 {
     display: block;
@@ -245,8 +245,8 @@ nav {
 }
 
 .hero p {
-    font-size: 1.05rem;
-    color: var(--muted);
+    font-size: 1.5rem;
+    color: #fff;
     max-width: 640px;
     margin: 0 auto 2.5rem;
     line-height: 1.9;
@@ -336,7 +336,7 @@ section {
 .reveal.visible .section-title::after { width: 100%; }
 
 .section-sub {
-    color: var(--muted);
+    color: #ffffff;
     font-size: 1rem;
     max-width: 560px;
 }
@@ -565,8 +565,8 @@ footer::before {
 }
 .social-links a:hover svg.icon-filled { fill: var(--c); }
 
-footer p { font-family: var(--font-code); font-size: 0.78rem; color: var(--muted); }
-footer p + p { margin-top: 0.4rem; opacity: 0.5; }
+footer p { font-family: var(--font-code); font-size: 0.78rem; color: #ffffff; }
+footer p + p { margin-top: 0.4rem; opacity: 1; }
 
 /* ══════════════════════════════════════
    SCROLL REVEAL UTILITY
