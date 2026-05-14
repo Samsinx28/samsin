@@ -228,9 +228,9 @@ body:has(button:hover) #cursor-ring {
 
 .service-card h3 {
     font-family: var(--font-ui);
-    font-size: 1.25rem;
+    font-size: 1.40rem;
     font-weight: 700;
-    color: #fff;
+    color: #00eeff;
     margin-bottom: 1rem;
     letter-spacing: 0.02em;
 }
@@ -239,7 +239,7 @@ body:has(button:hover) #cursor-ring {
 .service-card li {
     padding: 0.45rem 0;
     color: #fff;
-    font-size: 0.9rem;
+    font-size: 1.2rem;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
