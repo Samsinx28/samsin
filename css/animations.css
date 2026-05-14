@@ -1,0 +1,284 @@
+/*
+ * animations.css
+ * ─────────────────────────────────────────────
+ * All @keyframes definitions and animated
+ * background element styles: aurora blobs,
+ * grid, hex rain, particle canvas, vignette.
+ * ─────────────────────────────────────────────
+ */
+
+/* ══════════════════════════════════════
+   KEYFRAMES
+══════════════════════════════════════ */
+
+/* General fade-up entrance */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Blinking text cursor */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+}
+
+/* Glitch layers */
+@keyframes glitch1 {
+    0%, 94%, 100% { clip-path: none; transform: none; }
+    95% { clip-path: polygon(0 20%, 100% 20%, 100% 30%, 0 30%); transform: translateX(-4px); }
+    97% { clip-path: polygon(0 60%, 100% 60%, 100% 70%, 0 70%); transform: translateX(4px); }
+}
+@keyframes glitch2 {
+    0%, 96%, 100% { clip-path: none; transform: none; opacity: 1; }
+    97% { clip-path: polygon(0 40%, 100% 40%, 100% 55%, 0 55%); transform: translateX(6px); opacity: 0.8; }
+    99% { clip-path: polygon(0 10%, 100% 10%, 100% 20%, 0 20%); transform: translateX(-3px); }
+}
+
+/* Header bottom beam */
+@keyframes scanH {
+    0%, 100% { opacity: 0; }
+    50%       { opacity: 1; }
+}
+
+/* Header top-edge sweep */
+@keyframes headerBeam {
+    0%   { background-position: -100% 0; opacity: 0.4; }
+    50%  { opacity: 1; }
+    100% { background-position: 200% 0;  opacity: 0.4; }
+}
+
+/* Logo glow pulse */
+@keyframes logoGlow {
+    from { text-shadow: 0 0 15px var(--c), 0 0 30px rgba(0, 255, 231, 0.2); }
+    to   { text-shadow: 0 0 25px var(--c), 0 0 60px rgba(0, 255, 231, 0.4), 0 0 80px rgba(0, 255, 231, 0.1); }
+}
+
+/* Hero glow orb */
+@keyframes orbPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.6; }
+    50%       { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+}
+
+/* Hero eyebrow blink */
+@keyframes eyebrowBlink {
+    0%, 100% { opacity: 0.7; }
+    50%       { opacity: 1; }
+}
+
+/* Hero floating labels */
+@keyframes heroFloat {
+    0%, 100% { transform: translateY(0px);   opacity: 0.15; }
+    50%       { transform: translateY(-20px); opacity: 0.35; }
+}
+
+/* Scanline drift */
+@keyframes scanlineShift {
+    from { background-position: 0 0; }
+    to   { background-position: 0 40px; }
+}
+
+/* Grid slow drift */
+@keyframes gridDrift {
+    from { background-position: 0 0; }
+    to   { background-position: 0 60px; }
+}
+@keyframes gridPulse {
+    from { opacity: 0.6; }
+    to   { opacity: 1; }
+}
+
+/* Aurora floating blobs */
+@keyframes auroraFloat {
+    0%   { opacity: 0; transform: translateY(0px)   translateX(0px)  scale(1); }
+    10%  { opacity: 1; }
+    50%  { opacity: 1; transform: translateY(-60px) translateX(40px) scale(1.15); }
+    90%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(0px)   translateX(0px)  scale(1); }
+}
+
+/* Hex-rain column fall */
+@keyframes hexFall {
+    0%   { transform: translateY(-20px); opacity: 0; }
+    5%   { opacity: 1; }
+    95%  { opacity: 0.08; }
+    100% { transform: translateY(110vh); opacity: 0; }
+}
+
+/* Section beam divider sweep */
+@keyframes beamSweep {
+    0%   { left: -60%; }
+    100% { left: 160%; }
+}
+
+/* Mobile nav slide down */
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Footer beam */
+@keyframes footerBeam {
+    0%, 100% { opacity: 0.3; }
+    50%       { opacity: 1; }
+}
+
+/* Status dot pulse (available for hire / demo API) */
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; transform: scale(1);    }
+    50%       { opacity: 0.6; transform: scale(0.85); }
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+/* Contact icon ripple */
+@keyframes rippleOut {
+    from { opacity: 0.6; transform: scale(0.8); }
+    to   { opacity: 0;   transform: scale(1.4); }
+}
+
+/* Sentiment loading dots */
+@keyframes loadDots {
+    0%   { content: ' ░░░'; }
+    33%  { content: ' ▒░░'; }
+    66%  { content: ' ▒▒░'; }
+    100% { content: ' ▒▒▒'; }
+}
+
+/* Color palette spinner */
+@keyframes cpgSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Noise texture shift */
+@keyframes noiseShift {
+    0%  { transform: translate(0, 0); }
+    25% { transform: translate(-2px, 1px); }
+    50% { transform: translate(2px, -1px); }
+    75% { transform: translate(-1px, 2px); }
+}
+
+/* Breakout game animations */
+@keyframes brkScorePop {
+    0%   { transform: translateY(0)    scale(1);   opacity: 1; }
+    100% { transform: translateY(-55px) scale(1.5); opacity: 0; }
+}
+@keyframes brkShake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+}
+
+/* ══════════════════════════════════════
+   BACKGROUND FX ELEMENTS
+══════════════════════════════════════ */
+
+/* Solid background layer */
+.bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background: var(--bg);
+}
+
+/* Animated grid */
+.grid-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+        linear-gradient(rgba(0, 255, 231, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 231, 0.04) 1px, transparent 1px),
+        linear-gradient(rgba(0, 255, 231, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 231, 0.015) 1px, transparent 1px);
+    background-size: 60px 60px, 60px 60px, 15px 15px, 15px 15px;
+    animation: gridDrift 25s linear infinite,
+               gridPulse 8s ease-in-out infinite alternate;
+}
+
+/* Noise texture overlay */
+.noise {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+    animation: noiseShift 0.4s steps(1) infinite;
+}
+
+/* Radial vignette darkening the screen edges */
+.vignette {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse at center,
+        transparent 40%,
+        rgba(5, 7, 15, 0.65) 100%);
+    pointer-events: none;
+}
+
+/* Aurora glow blobs */
+.aurora-layer {
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+    pointer-events: none;
+    overflow: hidden;
+}
+.aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0;
+    animation: auroraFloat 18s ease-in-out infinite;
+}
+.aurora-blob.a1 {
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(0, 255, 231, 0.13) 0%, transparent 70%);
+    top: -10%; left: -15%;
+    animation-delay: 0s; animation-duration: 22s;
+}
+.aurora-blob.a2 {
+    width: 600px; height: 700px;
+    background: radial-gradient(ellipse, rgba(255, 0, 60, 0.08) 0%, transparent 70%);
+    top: 30%; right: -20%;
+    animation-delay: -8s; animation-duration: 26s;
+}
+.aurora-blob.a3 {
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0, 80, 255, 0.07) 0%, transparent 70%);
+    bottom: -10%; left: 20%;
+    animation-delay: -14s; animation-duration: 20s;
+}
+
+/* Particle canvas sits behind everything */
+#particle-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+    pointer-events: none;
+}
+
+/* Hex-rain column glyphs */
+.hex-rain {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+}
+.hex-glyph {
+    position: absolute;
+    font-family: var(--font-code);
+    font-size: 0.65rem;
+    color: rgba(0, 255, 231, 0.12);
+    animation: hexFall linear infinite;
+    user-select: none;
+    letter-spacing: 0.05em;
+}

@@ -1,0 +1,807 @@
+/*
+ * components.css
+ * ─────────────────────────────────────────────
+ * Reusable UI components: buttons, cards, forms,
+ * custom cursor, glitch effect, service cards,
+ * tech stack grid, contact items, game legend.
+ * ─────────────────────────────────────────────
+ */
+
+/* ══════════════════════════════════════
+   CUSTOM CURSOR
+══════════════════════════════════════ */
+#cursor-dot {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background: var(--c);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, opacity 0.2s;
+    mix-blend-mode: screen;
+}
+
+#cursor-ring {
+    position: fixed;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--c);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.4, 1),
+                width 0.2s, height 0.2s, opacity 0.2s;
+    opacity: 0.5;
+}
+
+/* Ring expands when hovering interactive elements */
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring {
+    width: 56px;
+    height: 56px;
+    opacity: 0.8;
+}
+
+/* ══════════════════════════════════════
+   GLITCH TEXT EFFECT
+══════════════════════════════════════ */
+.glitch-wrap { position: relative; display: inline-block; }
+.glitch-wrap::before,
+.glitch-wrap::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+}
+.glitch-wrap::before {
+    color: var(--m);
+    animation: glitch1 5s infinite;
+    text-shadow: -2px 0 var(--m);
+}
+.glitch-wrap::after {
+    color: var(--c);
+    animation: glitch2 7s infinite;
+    text-shadow: 2px 0 var(--c);
+}
+
+/* ══════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════ */
+.btn {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: none;
+    padding: 0.9rem 2.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s;
+    /* angular clip for a cyber feel */
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+}
+
+/* Shimmer on hover */
+.btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+}
+.btn:hover::after { transform: translateX(0); }
+
+.btn-primary {
+    background: var(--c);
+    color: var(--bg);
+    box-shadow: 0 0 20px rgba(0, 255, 231, 0.35),
+                inset 0 0 0 1px rgba(0, 255, 231, 0.5);
+}
+.btn-primary:hover {
+    box-shadow: 0 0 40px rgba(0, 255, 231, 0.7),
+                inset 0 0 0 1px var(--c);
+    transform: translateY(-2px);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--c);
+    box-shadow: inset 0 0 0 1px var(--c);
+}
+.btn-ghost:hover {
+    background: var(--cm);
+    box-shadow: inset 0 0 0 1px var(--c),
+                0 0 20px rgba(0, 255, 231, 0.2);
+    transform: translateY(-2px);
+}
+
+/* ══════════════════════════════════════
+   CORNER BRACKETS UTILITY
+══════════════════════════════════════ */
+.bracket-box { position: relative; padding: 0.1rem; }
+.bracket-box::before,
+.bracket-box::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: var(--c);
+    border-style: solid;
+    transition: width 0.4s, height 0.4s;
+}
+.bracket-box::before { top: 0; left: 0; border-width: 1px 0 0 1px; }
+.bracket-box::after  { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+.bracket-box:hover::before,
+.bracket-box:hover::after { width: 20px; height: 20px; }
+
+/* ══════════════════════════════════════
+   SERVICE CARDS
+══════════════════════════════════════ */
+.service-card {
+    background: var(--surface);
+    padding: 2.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+/* Large faded number watermark */
+.service-card::before {
+    content: attr(data-num);
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-family: var(--font-head);
+    font-size: 3rem;
+    font-weight: 900;
+    color: rgba(0, 255, 231, 0.04);
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* Gradient overlay on hover */
+.service-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0, 255, 231, 0.03) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+}
+
+.service-card:hover {
+    background: var(--bg3);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(0, 255, 231, 0.06);
+}
+.service-card:hover::after { opacity: 1; }
+.service-card:hover .service-icon-wrap { background: var(--cm); border-color: var(--c); }
+.service-card:hover .service-icon-wrap svg { stroke: var(--c); }
+
+/* Category badge (colour-coded by tier) */
+.service-cat {
+    font-family: var(--font-code);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--m);     /* default: micro */
+    margin-bottom: 1.2rem;
+}
+.service-cat.pro { color: var(--c); }
+.service-cat.ent { color: var(--y); }
+
+.service-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+    transition: all 0.3s;
+    background: var(--bg2);
+}
+.service-icon-wrap svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--muted);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.3s;
+}
+
+.service-card h3 {
+    font-family: var(--font-ui);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1rem;
+    letter-spacing: 0.02em;
+}
+
+.service-card ul { list-style: none; }
+.service-card li {
+    padding: 0.45rem 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.service-card li:last-child { border-bottom: none; }
+.service-card li::before {
+    content: '';
+    width: 6px;
+    height: 1px;
+    background: var(--c);
+    flex-shrink: 0;
+}
+
+/* Pricing tag */
+.price-tag {
+    margin-top: 1.5rem;
+    font-family: var(--font-head);
+    font-size: 1rem;
+    color: var(--y);
+    letter-spacing: 0.05em;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+/* ══════════════════════════════════════
+   DEMO CARDS
+══════════════════════════════════════ */
+.demo-card {
+    background: var(--surface);
+    padding: 2rem;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.4, 1),
+                box-shadow 0.3s;
+}
+.demo-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 40px rgba(0, 255, 231, 0.08);
+}
+
+.demo-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+.demo-card-header svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--c);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.demo-card h3 {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--c);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Status badge ("Live Demo · …") */
+.demo-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-code);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    padding: 0.2rem 0.6rem;
+    background: var(--cm);
+    border: 1px solid rgba(0, 255, 231, 0.25);
+    color: var(--c);
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+}
+.demo-tag::before {
+    content: '●';
+    font-size: 0.45rem;
+    animation: statusPulse 2s infinite;
+}
+
+/* ══════════════════════════════════════
+   SHARED DEMO FORM INPUTS
+══════════════════════════════════════ */
+.demo-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-code);
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.demo-input:focus {
+    border-color: var(--c);
+    box-shadow: 0 0 10px rgba(0, 255, 231, 0.15);
+}
+
+.demo-label {
+    display: block;
+    font-family: var(--font-code);
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+}
+
+/* ══════════════════════════════════════
+   TECH STACK GRID
+══════════════════════════════════════ */
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+}
+
+.tech-item {
+    background: var(--surface);
+    padding: 1.8rem 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s, transform 0.3s, box-shadow 0.3s;
+}
+
+/* Accent underline bar that scales in on hover */
+.tech-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--c);
+    transform: scaleX(0);
+    transition: transform 0.25s;
+}
+.tech-item:hover {
+    background: var(--bg3);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(0, 255, 231, 0.12);
+}
+.tech-item:hover::after  { transform: scaleX(1); }
+.tech-item:hover svg     { stroke: var(--c); }
+
+.tech-item svg {
+    width: 28px;
+    height: 28px;
+    stroke: var(--muted);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.2s;
+}
+.tech-item p {
+    font-family: var(--font-code);
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+}
+
+/* ══════════════════════════════════════
+   CONTACT ITEMS
+══════════════════════════════════════ */
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: all 0.2s;
+    position: relative;
+}
+.contact-item:last-child { border-bottom: none; }
+.contact-item:hover { padding-left: 8px; }
+.contact-item:hover .contact-icon-wrap { border-color: var(--c); }
+.contact-item:hover .contact-icon-wrap svg { stroke: var(--c); }
+
+/* Ripple on icon hover */
+.contact-item:hover .contact-icon-wrap::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 1px solid var(--c);
+    border-radius: 50%;
+    animation: rippleOut 0.6s ease-out forwards;
+}
+
+.contact-icon-wrap {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg2);
+    transition: border-color 0.2s;
+    position: relative;
+}
+.contact-icon-wrap svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--muted);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.2s;
+}
+
+.contact-item h4 {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.contact-item p {
+    font-family: var(--font-code);
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.1rem;
+}
+
+/* ══════════════════════════════════════
+   CONTACT FORM
+══════════════════════════════════════ */
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.form-group { display: flex; flex-direction: column; }
+.form-group label {
+    font-family: var(--font-code);
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+.form-group input,
+.form-group textarea {
+    padding: 0.9rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-code);
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--c);
+    box-shadow: 0 0 12px rgba(0, 255, 231, 0.12);
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 140px;
+}
+
+/* ══════════════════════════════════════
+   GAME LEGEND ROWS
+══════════════════════════════════════ */
+.brk-legend-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-code);
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.04em;
+}
+.brk-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px currentColor;
+}
+
+/* ══════════════════════════════════════
+   GAME LAYOUT — Neon Breakout
+   Canvas is 480×560 logical units.
+   CSS width:100% makes it scale visually.
+   Side panel shrinks with the viewport.
+══════════════════════════════════════ */
+
+/* Outer flex row: canvas col | side panel */
+.brk-layout {
+    display: flex;
+    gap: 1px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* Canvas column — fills remaining space after side panel */
+.brk-canvas-col {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+}
+
+/* Canvas border frame */
+.brk-frame {
+    position: relative;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    overflow: hidden;
+    aspect-ratio: 6 / 6.5;
+}
+
+/* Canvas fills the frame — game JS handles coordinate scaling */
+.brk-frame canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
+/* Corner bracket decorations */
+.brk-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: var(--c);
+    border-style: solid;
+    z-index: 2;
+    pointer-events: none;
+}
+.brk-corner.tl { top: 0; left: 0;  border-width: 2px 0 0 2px; }
+.brk-corner.tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.brk-corner.bl { bottom: 0; left: 0;  border-width: 0 0 2px 2px; }
+.brk-corner.br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+/* Touch / keyboard control strip below canvas */
+.brk-touch-strip {
+    display: none;
+    margin-top: 0.6rem;
+    height: 44px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+}
+.brk-touch-strip-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    font-family: var(--font-code);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    pointer-events: none;
+}
+.brk-touch-strip-label span { color: var(--border); }
+
+/* Side panel */
+.brk-side {
+    width: 160px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    /* Match canvas frame height via aspect-ratio on the frame */
+    align-self: stretch;
+    overflow: hidden;
+}
+
+/* Individual stat cells */
+.brk-side-cell {
+    background: var(--surface);
+    padding: 0.75rem 0.9rem;
+    flex-shrink: 0;
+}
+.brk-side-cell.brk-legend {
+    background: var(--bg);
+    flex: 1;
+    overflow: hidden;
+    padding: 0.75rem 0.9rem;
+}
+
+/* Stat label */
+.brk-stat-label {
+    font-family: var(--font-code);
+    font-size: 0.52rem;
+    color: var(--muted);
+    letter-spacing: 0.13em;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+/* Stat values */
+.brk-stat-val-lg {
+    font-family: var(--font-head);
+    font-size: 1.5rem;
+    color: var(--c);
+    text-shadow: 0 0 16px var(--c);
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+.brk-stat-val-md {
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+
+/* Progress bar */
+.brk-mini-bar-track {
+    height: 3px;
+    background: var(--border);
+    margin-top: 0.4rem;
+    overflow: hidden;
+}
+.brk-mini-bar-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.15s, background 0.3s;
+}
+
+/* ── Game overlay (start screen / game over) ── */
+.brk-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 7, 15, 0.92);
+    z-index: 10;
+    padding: 1rem;
+}
+.brk-overlay-title {
+    font-family: var(--font-head);
+    font-size: clamp(1.1rem, 3.5vw, 2rem);
+    font-weight: 900;
+    color: var(--c);
+    text-shadow: 0 0 30px var(--c);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.3rem;
+    text-align: center;
+}
+.brk-overlay-sub {
+    font-family: var(--font-code);
+    font-size: clamp(0.58rem, 1.5vw, 0.75rem);
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    margin-bottom: 1.4rem;
+    text-align: center;
+}
+.brk-overlay-score {
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    color: var(--y);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.35rem;
+}
+.brk-overlay-hi {
+    font-family: var(--font-code);
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.2rem;
+}
+.brk-start-btn {
+    font-size: clamp(0.75rem, 2vw, 0.95rem);
+    padding: 0.75rem 2rem;
+    letter-spacing: 0.18em;
+}
+.brk-overlay-hint {
+    margin-top: 1.2rem;
+    font-family: var(--font-code);
+    font-size: clamp(0.5rem, 1.2vw, 0.62rem);
+    color: rgba(74, 86, 122, 0.65);
+    letter-spacing: 0.1em;
+    text-align: center;
+    line-height: 2;
+}
+
+/* Touch indicator bar */
+.brk-touch-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 4px;
+    background: var(--c);
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--c);
+    transition: left 0.05s;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* ══════════════════════════════════════
+   GAME SECTION OUTER LAYOUT
+   game-inner: flex row — game on left,
+   Smash Labs button fills right space.
+══════════════════════════════════════ */
+.game-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+/* game-main holds the heading + brk-layout and takes natural width */
+.game-main {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Smash Labs button — vertical pill in the empty right column */
+.game-smash-btn {
+    flex-shrink: 0;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 0.2em;
+    padding: 2rem 1rem;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 900px) {
+    /* Stack on mobile — button goes below game, reads normally */
+    .game-inner      { flex-direction: column; }
+    .game-smash-btn  {
+        writing-mode: horizontal-tb;
+        padding: 0.9rem 1.5rem;
+        width: 100%;
+        text-align: center;
+        align-self: auto;
+    }
+}

@@ -1,0 +1,15 @@
+# robots.txt — Place this file in the ROOT of your GitHub Pages repo.
+#
+# BEFORE DEPLOYING: Replace YOUR_USERNAME with your actual GitHub username.
+#
+# This file tells search engine crawlers:
+#   - Which pages they are allowed to index (User-agent + Allow/Disallow)
+#   - Where to find your sitemap.xml so they discover your content faster
+#
+# For a public portfolio you want EVERYTHING indexed, so we allow all.
+
+User-agent: *
+Allow: /
+
+# Point crawlers to your sitemap — speeds up indexing significantly
+Sitemap: https://samsinx28.github.io/samsinx28.github-iositemap.xml

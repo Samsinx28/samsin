@@ -1,0 +1,94 @@
+/*
+ * base.css
+ * ─────────────────────────────────────────────
+ * CSS reset, custom properties (design tokens),
+ * and global body / html rules.
+ * ─────────────────────────────────────────────
+ */
+
+/* ── Reset ── */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ── Design Tokens ── */
+:root {
+    /* Backgrounds */
+    --bg:       #05070f;
+    --bg2:      #080b18;
+    --bg3:      #0d1120;
+    --surface:  #0f1525;
+    --border:   #1a2240;
+
+    /* Brand colours */
+    --c:  #00ffe7;                    /* cyan — primary accent */
+    --cm: rgba(0, 255, 231, 0.08);
+    --cg: rgba(0, 255, 231, 0.2);
+    --m:  #ff003c;                    /* magenta — danger / accent */
+    --mm: rgba(255, 0, 60, 0.08);
+    --y:  #ffe000;                    /* yellow — highlight */
+
+    /* Text */
+    --text:  #c9d4f0;
+    --muted: #4a567a;
+
+    /* Fonts */
+    --font-head: 'Orbitron', monospace;
+    --font-ui:   'Rajdhani', sans-serif;
+    --font-code: 'Share Tech Mono', monospace;
+}
+
+/* ── Global ── */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-ui);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+    cursor: none; /* replaced by custom cursor */
+}
+
+/* ── Accessibility: restore cursor on touch devices ── */
+@media (hover: none) and (pointer: coarse) {
+    *, *::before, *::after { cursor: auto !important; }
+    #cursor-dot, #cursor-ring { display: none !important; }
+}
+
+/* ── Scanline overlay — subtle CRT feel ── */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 0, 0, 0.04) 3px,
+        rgba(0, 0, 0, 0.04) 4px
+    );
+    pointer-events: none;
+    z-index: 9000;
+    animation: scanlineShift 8s linear infinite;
+}
+
+/* ── Skip-to-content (accessibility) ── */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 1rem;
+    background: var(--c);
+    color: var(--bg);
+    font-family: var(--font-ui);
+    font-weight: 700;
+    padding: 0.6rem 1.2rem;
+    z-index: 99999;
+    transition: top 0.2s;
+    text-decoration: none;
+}
+.skip-link:focus { top: 1rem; }

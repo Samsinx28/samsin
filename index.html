@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samsin · Web, Automation & ML</title>
+
+    <!-- ══ SEO Meta ══ -->
+    <meta name="description" content="Freelance developer specializing in web development, Python automation, and ML solutions. Interactive demos included.">
+    <meta name="keywords" content="freelance developer, web development, Python automation, machine learning, ML solutions, portfolio">
+    <meta name="author" content="Samsin">
+    <meta name="robots" content="index, follow">
+
+    <!-- ══ Open Graph ══ -->
+    <meta property="og:title" content="Samsin · Web, Automation & ML">
+    <meta property="og:description" content="Freelance developer, web apps, Python automation, ML solutions. See live interactive demos.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://samsinx28.github.io/samsinx28.github-io">
+    <meta property="og:image" content="https://og-image.vercel.app/DEV%20%2F%2F%20Web%20%C2%B7%20Automation%20%C2%B7%20ML.png?theme=dark&md=1&fontSize=100px">
+
+    <!-- ══ Twitter / X Card ══ -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@YOUR_TWITTER">
+    <meta name="twitter:title" content="Samsin · Web, Automation & ML">
+    <meta name="twitter:description" content="Freelance developer, web apps, Python automation, ML solutions.">
+
+    <!-- ══ Canonical URL — update with your actual GitHub Pages domain ══ -->
+    <link rel="canonical" href="https://samsinx28.github.io/samsinx28.github-io">
+
+    <!-- ══ Favicon (inline SVG data URI) ══ -->
+    <link rel="icon" type="image/png" href="images/logo.png">
+
+    <!-- ══ JSON-LD Structured Data — helps Google understand who you are ══ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Samsin",
+      "jobTitle": "Web Developer & ML Engineer",
+      "description": "Freelance developer specializing in web development, Python automation, and machine learning solutions.",
+      "url": "https://samsinx28.github.io/samsinx28.github-io",
+      "sameAs": [
+        "https://github.com/yourusername",
+        "https://twitter.com/yourtwitter",
+        "https://instagram.com/yourinstagram"
+      ],
+      "knowsAbout": ["Web Development", "Python", "Machine Learning", "Automation", "React", "FastAPI"]
+    }
+    </script>
+
+    <!-- ══ Google Fonts ══ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- ══ Stylesheets ══ -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/demos.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+<!-- ══ Accessibility: Skip to main content ══ -->
+<a href="#services" class="skip-link">Skip to main content</a>
+
+<!-- ══ Custom Cursor ══ -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- ══ Background Layers ══ -->
+<div class="bg-canvas"></div>
+<canvas id="particle-canvas"></canvas>
+<div class="aurora-layer">
+    <div class="aurora-blob a1"></div>
+    <div class="aurora-blob a2"></div>
+    <div class="aurora-blob a3"></div>
+</div>
+<div class="grid-bg"></div>
+<div class="hex-rain" id="hex-rain"></div>
+<div class="noise"></div>
+<div class="vignette"></div>
+
+<!-- ══════════════════════════════════════
+     HEADER
+══════════════════════════════════════ -->
+<header>
+    <nav>
+        <div class="logo">&lt;<span>Samsinx28</span>/&gt;</div>
+        <div class="nav-links">
+            <a href="#about">About</a>
+            <a href="#services">Services</a>
+            <a href="#demos">Time Pass</a>
+            <a href="#game">Game</a>
+            <a href="#contact">Contact</a>
+        </div>
+        <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+</header>
+
+<!-- ══ Mobile Navigation ══ -->
+<div class="mobile-nav" id="mobile-nav">
+    <a href="#about"    onclick="closeMobileNav()">About</a>
+    <a href="#services" onclick="closeMobileNav()">Services</a>
+    <a href="#demos"    onclick="closeMobileNav()">Time Pass</a>
+    <a href="#game"     onclick="closeMobileNav()">Game</a>
+    <a href="#contact"  onclick="closeMobileNav()">Contact</a>
+</div>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section class="hero">
+    <!-- Floating decorative labels -->
+    <span class="hero-float">0xFF_INIT</span>
+    <span class="hero-float">SYS::ONLINE</span>
+    <span class="hero-float">BUILD_v2.0</span>
+    <span class="hero-float">EXEC::RDY</span>
+
+    <div class="hero-content">
+        <div class="hero-eyebrow">Open for projects at the moment</div>
+        <h1>
+            Building Digital Solutions,
+            <span class="line2 glitch-wrap" data-text="One Line at a Time">One Line at a Time</span>
+        </h1>
+        <div class="typing-line">
+            <span id="typing-output"></span>
+            <span class="cursor"></span>
+        </div>
+        <p>Freelance developer specializing in web development, Python automation, and machine learning. From simple websites to complex ML models, I help code ideas to reality</p>
+        <div class="cta-buttons">
+            <a href="#services" class="btn btn-primary">Explore Services</a>
+            <a href="#contact"  class="btn btn-ghost">Get in Touch</a>
+        </div>
+    </div>
+</section>
+<div class="beam-divider"></div>
+
+<!-- ══════════════════════════════════════
+     ABOUT
+══════════════════════════════════════ -->
+<section id="about">
+<div class="inner">
+    <div class="section-header reveal">
+        <div class="section-label">Who I Am</div>
+        <h2 class="section-title">About Me</h2>
+        <p class="section-sub">The human behind the code.</p>
+    </div>
+
+    <div class="about-grid reveal reveal-delay-1">
+
+        <!-- Left: avatar + status -->
+        <div class="about-avatar-col">
+            <div class="about-avatar">
+                <!-- Replace with your logo / photo -->
+                <img src="images/logo.gif" alt="Logo" style="width:100%;height:100%;object-fit:contain;">
+            </div>
+            <div class="about-status">
+                <span class="about-status-dot"></span>
+                Open for work
+            </div>
+        </div>
+
+        <!-- Right: bio -->
+        <div class="about-content-col">
+            <p class="about-bio">
+                Hi, I'm <strong>Samsin</strong>. I build things for the web, automate the tedious stuff,
+                and occasionally train models that actually do something useful.
+                My work sits somewhere between <strong>front-end craft</strong>, backend logic,
+                and <strong>machine learning</strong>, and I like it that way.
+            </p>
+            <p class="about-bio">
+                I care about code that's readable six months later, UIs that don't need a manual,
+                and being honest about what a project actually needs.
+                If you've got something to build, I'm probably a good fit.
+
+                <br> At the very least you need a website for yourself, right? Even if CV or a website to show off your projects or products.
+            </p>
+        </div>
+
+    </div>
+</div>
+</section>
+<div class="beam-divider"></div>
+
+<!-- ══════════════════════════════════════
+     SERVICES
+══════════════════════════════════════ -->
+<section id="services">
+<div class="inner">
+    <div class="section-header reveal">
+        <div class="section-label">What I Do</div>
+        <h2 class="section-title">Services & Solutions</h2>
+        <p class="section-sub">From quick fixes to full-scale applications, tailored to your needs and budget. I can do alot more but listing some common stuffs, have a chat with me to discuss whatever you want even if its not listed.</p>
+    </div>
+
+    <div class="services-grid">
+
+        <!-- Service 01 -->
+        <div class="service-card reveal reveal-delay-1" data-num="01">
+            <div class="service-cat">Micro Service</div>
+            <div class="service-icon-wrap">
+                <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <h3>Quick Digital works</h3>
+            <ul>
+                <li>Personal landing pages & portfolios edits/improvements</li>
+                <li>Website bug fixes & updates</li>
+                <li>Contact form setup & email automation</li>
+                <li>Simple web scrapers</li>
+                <li>PDF/Excel automation tools</li>
+                <li>Social media auto-posting scripts</li>
+                <li>Creating static responsive websites (most common)</li>
+            </ul>
+            <div class="price-tag">From $50 - $150 </div>
+        </div>
+
+        <!-- Service 02 -->
+        <div class="service-card reveal reveal-delay-2" data-num="02">
+            <div class="service-cat">Micro Service</div>
+            <div class="service-icon-wrap">
+                <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M21.17 8H12V2.83A10 10 0 0 1 21.17 8z"/></svg>
+            </div>
+            <h3>AI Integration Basics</h3>
+            <ul>
+                <li>Add AI agents to your website</li>
+                <li>Simple chatbot implementations</li>
+                <li>AI-powered content generation tools</li>
+                <li>Automated response systems</li>
+                <li>Building AI agents</li>
+            </ul>
+            <div class="price-tag">From $100</div>
+        </div>
+
+        <!-- Service 03 -->
+        <div class="service-card reveal reveal-delay-3" data-num="03">
+            <div class="service-cat pro">Professional</div>
+            <div class="service-icon-wrap">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </div>
+            <h3>Custom Web Applications</h3>
+            <ul>
+                <li>Business dashboards & admin panels</li>
+                <li>E-commerce platforms</li>
+                <li>SaaS MVP development</li>
+                <li>API development & integrations</li>
+                <li>Database design & optimization</li>
+                <li>Progressive Web Apps (PWA)</li>
+            </ul>
+            <div class="price-tag">From $500</div>
+        </div>
+
+        <!-- Service 04 -->
+        <div class="service-card reveal reveal-delay-1" data-num="04">
+            <div class="service-cat pro">Professional</div>
+            <div class="service-icon-wrap">
+                <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            </div>
+            <h3>Workflow Automation</h3>
+            <ul>
+                <li>Custom Python automation scripts</li>
+                <li>Data pipeline development</li>
+                <li>Report generation automation</li>
+                <li>Multi-platform integrations</li>
+                <li>Task scheduling & monitoring</li>
+                <li>Business process optimization</li>
+            </ul>
+            <div class="price-tag">From $400</div>
+        </div>
+
+        <!-- Service 05 -->
+        <div class="service-card reveal reveal-delay-2" data-num="05">
+            <div class="service-cat pro">Professional</div>
+            <div class="service-icon-wrap">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <h3>Data Analysis & Insights</h3>
+            <ul>
+                <li>CSV/Excel data analysis scripts</li>
+                <li>Business intelligence dashboards</li>
+                <li>Data visualization & reporting</li>
+                <li>Statistical analysis automation</li>
+                <li>Trend prediction & forecasting</li>
+            </ul>
+            <div class="price-tag">From $350</div>
+        </div>
+
+        <!-- Service 06 -->
+        <div class="service-card reveal reveal-delay-3" data-num="06">
+            <div class="service-cat ent">Enterprise</div>
+            <div class="service-icon-wrap">
+                <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            </div>
+            <h3>Machine Learning Solutions</h3>
+            <ul>
+                <li>Custom ML model development</li>
+                <li>Recommendation systems</li>
+                <li>Image classification & detection</li>
+                <li>Natural language processing</li>
+                <li>Predictive analytics</li>
+                <li>Model deployment & scaling</li>
+            </ul>
+            <div class="price-tag">From $1000</div>
+        </div>
+
+    </div>
+</div>
+</section>
+<div class="beam-divider"></div>
+
+<!-- ══════════════════════════════════════
+     LIVE DEMOS
+     Chart.js loaded here as it's only needed for the demos section
+══════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<section id="demos">
+<div class="inner">
+    <div class="section-header reveal">
+        <div class="section-label">Some random things to try</div>
+        <h2 class="section-title">Try These</h2>
+        <p class="section-sub">Four interactive tools running entirely in your browser. Zero backend, zero server.</p>
+    </div>
+
+    <div class="demo-grid">
+
+        <!-- ① Password Strength Analyzer -->
+        <div class="demo-card reveal reveal-delay-1">
+            <div class="demo-tag">Test how long will it take to crack your password using brute force attacks</div>
+            <div class="demo-card-header">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <h3>Password Strength Analyzer</h3>
+            </div>
+
+            <label class="demo-label">Enter Password</label>
+            <div class="pw-input-wrap">
+                <input class="demo-input" id="pw-input" type="password"
+                       placeholder="Type your password…" oninput="analyzePw(this.value)">
+                <button class="pw-toggle" id="pw-toggle" onclick="togglePwVis()">SHOW</button>
+            </div>
+
+            <div class="meter-row">
+                <div class="meter-label-row"><span class="meter-name">ENTROPY (BITS)</span><span class="meter-val" id="m-entropy">0</span></div>
+                <div class="meter-track"><div class="meter-fill" id="mf-entropy"></div></div>
+            </div>
+            <div class="meter-row">
+                <div class="meter-label-row"><span class="meter-name">LENGTH SCORE</span><span class="meter-val" id="m-length">0</span></div>
+                <div class="meter-track"><div class="meter-fill" id="mf-length"></div></div>
+            </div>
+            <div class="meter-row">
+                <div class="meter-label-row"><span class="meter-name">CHAR VARIETY</span><span class="meter-val" id="m-variety">0</span></div>
+                <div class="meter-track"><div class="meter-fill" id="mf-variety"></div></div>
+            </div>
+            <div class="meter-row">
+                <div class="meter-label-row"><span class="meter-name">PATTERN PENALTY</span><span class="meter-val" id="m-penalty">0</span></div>
+                <div class="meter-track"><div class="meter-fill danger" id="mf-penalty"></div></div>
+            </div>
+            <div class="meter-row">
+                <div class="meter-label-row"><span class="meter-name">OVERALL STRENGTH</span><span class="meter-val" id="m-overall">0</span></div>
+                <div class="meter-track"><div class="meter-fill" id="mf-overall"></div></div>
+            </div>
+
+            <div class="crack-time">
+                <span class="crack-label">Crack Time:</span>
+                <span class="crack-value" id="crack-val">—</span>
+            </div>
+            <div class="pw-suggestions" id="pw-tips"></div>
+        </div>
+
+        <!-- ② Sentiment Analysis -->
+        <div class="demo-card reveal reveal-delay-2">
+            <div class="demo-tag">Client-Side NLP</div>
+            <div class="demo-card-header">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                <h3>Sentiment Analysis <span style="font-size:0.6rem;color:var(--c);font-family:var(--font-code);letter-spacing:0.05em">CLIENT-SIDE NLP</span></h3>
+            </div>
+
+            <div class="sent-api-status">
+                <span class="sent-status-dot online" id="sent-status-dot"></span>
+                <span id="sent-status-text" style="font-family:var(--font-code);font-size:0.7rem;color:var(--c)">VADER lexicon loaded, ready</span>
+            </div>
+
+            <label class="demo-label" style="margin-top:0.8rem">Paste any text: email, review, headline…</label>
+            <textarea class="demo-input sent-textarea" id="sent-input"
+                placeholder=" "></textarea>
+            <button class="btn btn-ghost sent-btn" id="sent-btn" onclick="analyzeSentiment()">Analyze</button>
+
+            <div id="sent-results" style="display:none">
+                <div class="sent-bars">
+                    <div class="sent-bar-row">
+                        <div class="sent-bar-label-row"><span class="sent-bar-name tok-pos">Positive</span><span class="sent-bar-pct" id="sent-pos-pct">—</span></div>
+                        <div class="sent-track"><div class="sent-fill pos" id="sent-pos-fill"></div></div>
+                    </div>
+                    <div class="sent-bar-row">
+                        <div class="sent-bar-label-row"><span class="sent-bar-name tok-neg">Negative</span><span class="sent-bar-pct" id="sent-neg-pct">—</span></div>
+                        <div class="sent-track"><div class="sent-fill neg" id="sent-neg-fill"></div></div>
+                    </div>
+                    <div class="sent-bar-row">
+                        <div class="sent-bar-label-row"><span class="sent-bar-name tok-neu">Neutral</span><span class="sent-bar-pct" id="sent-neu-pct">—</span></div>
+                        <div class="sent-track"><div class="sent-fill neu" id="sent-neu-fill"></div></div>
+                    </div>
+                </div>
+
+                <div class="sent-meta-row">
+                    <div class="sent-meta-cell">
+                        <span class="sent-meta-label">Compound</span>
+                        <span class="sent-meta-val" id="sent-compound">—</span>
+                    </div>
+                    <div class="sent-meta-cell">
+                        <span class="sent-meta-label">Intensity</span>
+                        <span class="sent-meta-val" id="sent-intensity">—</span>
+                    </div>
+                    <div class="sent-meta-cell">
+                        <span class="sent-meta-label">Subjectivity</span>
+                        <span class="sent-meta-val" id="sent-subjectivity">—</span>
+                    </div>
+                </div>
+
+                <div class="sent-verdict" id="sent-verdict">—</div>
+                <div class="sent-section-label">Sentence Breakdown</div>
+                <div id="sent-sentences"></div>
+                <div class="sent-section-label" style="margin-top:0.8rem">
+                    Token Analysis <span style="color:var(--border)">green=positive · red=negative · dim=negator</span>
+                </div>
+                <div class="sent-tokens" id="sent-tokens"></div>
+            </div>
+        </div>
+
+        <!-- ③ Live Chart Builder -->
+        <div class="demo-card reveal reveal-delay-1">
+            <div class="demo-tag">CSV Upload</div>
+            <div class="demo-card-header">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+                <h3>Live Chart Builder</h3>
+            </div>
+
+            <div class="chart-top-row">
+                <div style="display:flex;gap:0.4rem">
+                    <button class="chart-toggle active" id="ct-bar"     onclick="setChart('bar')">Bar</button>
+                    <button class="chart-toggle"        id="ct-line"    onclick="setChart('line')">Line</button>
+                    <button class="chart-toggle"        id="ct-scatter" onclick="setChart('scatter')">Scatter</button>
+                </div>
+                <div style="display:flex;gap:0.4rem;margin-left:auto">
+                    <button class="btn btn-ghost" onclick="loadSampleData()"
+                            style="padding:0.35rem 0.8rem;font-size:0.7rem;letter-spacing:0.08em">Sample Data</button>
+                    <label class="btn btn-ghost"
+                           style="padding:0.35rem 0.8rem;font-size:0.7rem;letter-spacing:0.08em;cursor:none">
+                        Upload CSV
+                        <input type="file" accept=".csv" id="csv-file-input"
+                               style="display:none" onchange="handleCsvFile(this)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Axis config — shown after data is loaded -->
+            <div id="chart-axis-row" style="display:none" class="chart-axis-row">
+                <div id="chart-col-pickers" style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:flex-end;width:100%">
+                    <datalist id="chart-cols-list"></datalist>
+                    <div class="chart-axis-group" style="flex:1;min-width:110px">
+                        <span class="demo-label" style="margin:0">X COLUMN <span style="color:var(--border);font-size:0.6rem">type or pick</span></span>
+                        <input class="chart-select" id="chart-x-col" type="text" list="chart-cols-list"
+                               placeholder="column name or index…"
+                               oninput="applyColumnSelection()" onblur="validateColInput(this)" style="width:100%">
+                    </div>
+                    <div class="chart-axis-group" style="flex:1;min-width:110px">
+                        <span class="demo-label" style="margin:0">Y COLUMN <span style="color:var(--border);font-size:0.6rem">type or pick</span></span>
+                        <input class="chart-select" id="chart-y-col" type="text" list="chart-cols-list"
+                               placeholder="column name or index…"
+                               oninput="applyColumnSelection()" onblur="validateColInput(this)" style="width:100%">
+                    </div>
+                    <button class="chart-toggle" onclick="resetCsv()"
+                            style="margin-left:auto;align-self:flex-end;padding:0.3rem 0.7rem;font-size:0.68rem">✕ Clear</button>
+                </div>
+                <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:flex-end;width:100%;margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid var(--border)">
+                    <div class="chart-axis-group" style="flex:1;min-width:100px">
+                        <span class="demo-label" style="margin:0">X AXIS LABEL</span>
+                        <input class="chart-select" id="chart-xlabel" type="text" placeholder="e.g. Month"
+                               oninput="updateAxisLabels()" style="width:100%">
+                    </div>
+                    <div class="chart-axis-group" style="flex:1;min-width:100px">
+                        <span class="demo-label" style="margin:0">Y AXIS LABEL</span>
+                        <input class="chart-select" id="chart-ylabel" type="text" placeholder="e.g. Sales, Temperature…"
+                               oninput="updateAxisLabels()" style="width:100%">
+                    </div>
+                    <div class="chart-axis-group" style="flex:1;min-width:100px">
+                        <span class="demo-label" style="margin:0">CHART TITLE</span>
+                        <input class="chart-select" id="chart-title-input" type="text" placeholder="optional"
+                               oninput="updateAxisLabels()" style="width:100%">
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-area"><canvas id="chart-canvas"></canvas></div>
+
+            <div class="chart-stats">
+                <div class="chart-stat"><span class="chart-stat-label">MIN</span> <span class="chart-stat-val" id="cs-min">—</span></div>
+                <div class="chart-stat"><span class="chart-stat-label">MAX</span> <span class="chart-stat-val" id="cs-max">—</span></div>
+                <div class="chart-stat"><span class="chart-stat-label">MEAN</span><span class="chart-stat-val" id="cs-mean">—</span></div>
+                <div class="chart-stat"><span class="chart-stat-label">TREND</span><span class="chart-stat-val" id="cs-trend">—</span></div>
+            </div>
+
+            <div class="chart-drop-zone" id="chart-drop"
+                 ondragover="event.preventDefault();this.classList.add('drag-over')"
+                 ondragleave="this.classList.remove('drag-over')"
+                 ondrop="handleCsvDrop(event)">
+                ⬆ drag &amp; drop a CSV here, or use Upload CSV above
+            </div>
+            <div id="chart-csv-info" style="display:none" class="chart-csv-info"></div>
+        </div>
+
+        <!-- ④ Color Palette Generator -->
+        <div class="demo-card reveal reveal-delay-2">
+            <div class="demo-tag">Image Processing</div>
+            <div class="demo-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/>
+                    <circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/>
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.1 0 2-.9 2-2v-.5c0-.55.45-1 1-1h1c2.76 0 5-2.24 5-5 0-5.52-4.48-9.5-9-9.5z"/>
+                </svg>
+                <h3>Color Palette Generator</h3>
+            </div>
+
+            <div class="cpg-drop-zone" id="cpg-drop"
+                 ondragover="event.preventDefault();this.classList.add('drag-over')"
+                 ondragleave="this.classList.remove('drag-over')"
+                 ondrop="cpgHandleDrop(event)">
+                <img id="cpg-preview" class="cpg-preview-img" alt="preview">
+                <div class="cpg-drop-zone-label" id="cpg-drop-label">
+                    <div style="font-size:1.4rem;margin-bottom:0.3rem;opacity:0.4">◈</div>
+                    drop an image here &nbsp;·&nbsp; <span>or click to upload</span>
+                </div>
+                <div id="cpg-loading" style="display:none;flex-direction:column;align-items:center;gap:0.5rem;pointer-events:none">
+                    <div class="cpg-spinner"></div>
+                    <div style="font-family:var(--font-code);font-size:0.7rem;color:var(--c);letter-spacing:0.1em">Analysing…</div>
+                </div>
+                <div class="cpg-copied-toast" id="cpg-toast">Copied!</div>
+                <input type="file" id="cpg-file-input" accept="image/*"
+                       style="position:absolute;inset:0;opacity:0;cursor:none"
+                       onchange="cpgHandleFile(this.files[0])">
+            </div>
+
+            <div class="cpg-swatches"  id="cpg-swatches"  style="display:none"></div>
+            <div class="cpg-stats-row" id="cpg-stats"     style="display:none">
+                <div class="cpg-stat"><span class="cpg-stat-label">Dominant</span>   <span class="cpg-stat-val" id="cpg-dominant">—</span></div>
+                <div class="cpg-stat" style="border-left:1px solid var(--border)"><span class="cpg-stat-label">Brightness</span>  <span class="cpg-stat-val" id="cpg-brightness">—</span></div>
+                <div class="cpg-stat" style="border-left:1px solid var(--border)"><span class="cpg-stat-label">Saturation</span>  <span class="cpg-stat-val" id="cpg-saturation">—</span></div>
+                <div class="cpg-stat" style="border-left:1px solid var(--border)"><span class="cpg-stat-label">Temperature</span> <span class="cpg-stat-val" id="cpg-temp">—</span></div>
+            </div>
+            <div class="cpg-harmony-row" id="cpg-harmony" style="display:none"></div>
+            <div class="cpg-export-row" id="cpg-export"   style="display:none">
+                <button class="btn btn-ghost" onclick="cpgExportCSS()" style="padding:0.3rem 0.8rem;font-size:0.68rem;letter-spacing:0.08em">Copy CSS Vars</button>
+                <button class="btn btn-ghost" onclick="cpgExportHex()" style="padding:0.3rem 0.8rem;font-size:0.68rem;letter-spacing:0.08em">Copy HEX List</button>
+                <button class="btn btn-ghost" onclick="cpgReset()"     style="padding:0.3rem 0.8rem;font-size:0.68rem;letter-spacing:0.08em;margin-left:auto">✕ Clear</button>
+            </div>
+        </div>
+
+    </div><!-- /.demo-grid -->
+</div>
+</section>
+
+<!-- ══════════════════════════════════════
+     GAME — Neon Breakout
+══════════════════════════════════════ -->
+<section id="game">
+<div class="inner game-inner">
+
+    <!-- Left: heading + game -->
+    <div class="game-main">
+        <div class="section-header reveal">
+            <div class="section-label">Easter Egg</div>
+            <h2 class="section-title">Neon Breakout</h2>
+            <p class="section-sub">A fully featured arkanoid clone with multi-ball, power-ups, combos, and laser walls.</p>
+        </div>
+
+        <!-- brk-layout: flex row — canvas col + side panel -->
+        <div class="brk-layout">
+
+        <!-- ── Canvas column ── -->
+        <div class="brk-canvas-col">
+            <div class="brk-frame">
+                <!-- Corner bracket decorations -->
+                <div class="brk-corner tl"></div>
+                <div class="brk-corner tr"></div>
+                <div class="brk-corner bl"></div>
+                <div class="brk-corner br"></div>
+
+                <canvas id="brk-canvas"></canvas>
+
+                <!-- Start / Game-over overlay -->
+                <div id="brk-overlay" class="brk-overlay">
+                    <div id="brk-overlay-title" class="brk-overlay-title">NEON BREAKOUT</div>
+                    <div id="brk-overlay-sub"   class="brk-overlay-sub">v2.0 · GRID ANNIHILATION</div>
+                    <div id="brk-overlay-score" class="brk-overlay-score" style="display:none;"></div>
+                    <div id="brk-overlay-hi"    class="brk-overlay-hi"    style="display:none;"></div>
+                    <button id="brk-start-btn" onclick="brkStart()" class="btn btn-primary brk-start-btn">BOOT GAME</button>
+                    <div class="brk-overlay-hint">
+                        MOUSE / FINGER TO MOVE PADDLE<br>
+                        DESTROY ALL BLOCKS TO ADVANCE<br>
+                        P PAUSE · R RESTART
+                    </div>
+                </div>
+            </div>
+
+            <!-- Touch / keyboard controls strip (shown on touch devices) -->
+            <div id="brk-touch-strip" class="brk-touch-strip">
+                <div class="brk-touch-strip-label">
+                    <span>← A/D or ARROW KEYS →</span>
+                    <span>|</span>
+                    <span>TOUCH: SLIDE TO MOVE</span>
+                </div>
+                <div id="brk-touch-indicator" class="brk-touch-indicator"></div>
+            </div>
+        </div>
+
+        <!-- ── Side panel: score, lives, power-ups, legend ── -->
+        <div class="brk-side">
+
+            <div class="brk-side-cell">
+                <div class="brk-stat-label">SCORE</div>
+                <div id="brk-score-el" class="brk-stat-val-lg">0</div>
+            </div>
+
+            <div class="brk-side-cell">
+                <div class="brk-stat-label">HI-SCORE</div>
+                <div id="brk-hi-el" class="brk-stat-val-md" style="color:var(--y);">0</div>
+            </div>
+
+            <div class="brk-side-cell">
+                <div class="brk-stat-label">LIVES</div>
+                <div id="brk-lives-el" class="brk-stat-val-md" style="color:var(--m);font-size:1.3rem;">◈◈◈</div>
+            </div>
+
+            <div class="brk-side-cell">
+                <div class="brk-stat-label">LEVEL</div>
+                <div id="brk-level-el" class="brk-stat-val-md" style="color:var(--c);">1</div>
+            </div>
+
+            <div class="brk-side-cell">
+                <div class="brk-stat-label">COMBO</div>
+                <div id="brk-combo-el" class="brk-stat-val-md" style="color:var(--y);">x1</div>
+                <div class="brk-mini-bar-track">
+                    <div id="brk-combo-bar" class="brk-mini-bar-fill" style="background:var(--y);"></div>
+                </div>
+            </div>
+
+            <div class="brk-side-cell">
+                <div class="brk-stat-label">ACTIVE POWER</div>
+                <div id="brk-power-el" style="font-family:var(--font-code);font-size:0.7rem;color:var(--muted);letter-spacing:0.06em;">—</div>
+                <div class="brk-mini-bar-track">
+                    <div id="brk-power-bar" class="brk-mini-bar-fill" style="background:var(--c);"></div>
+                </div>
+            </div>
+
+            <!-- Power-up legend -->
+            <div class="brk-side-cell brk-legend">
+                <div class="brk-stat-label" style="margin-bottom:0.6rem;">POWER-UPS</div>
+                <div class="brk-legend-row"><span class="brk-dot" style="background:#00ffe7;"></span><span>Wide Paddle</span></div>
+                <div class="brk-legend-row"><span class="brk-dot" style="background:#ffe000;"></span><span>Multi-Ball</span></div>
+                <div class="brk-legend-row"><span class="brk-dot" style="background:#ff003c;"></span><span>Fire Ball</span></div>
+                <div class="brk-legend-row"><span class="brk-dot" style="background:#7b5ea7;"></span><span>Laser Shot</span></div>
+                <div class="brk-legend-row"><span class="brk-dot" style="background:#00bfff;"></span><span>Slow Time</span></div>
+                <div class="brk-legend-row"><span class="brk-dot" style="background:#ff8c00;box-shadow:0 0 6px #ff8c00;"></span><span>Shield</span></div>
+            </div>
+
+        </div><!-- /.brk-side -->
+
+    </div><!-- /.brk-layout -->
+    </div><!-- /.game-main -->
+
+    <!-- Right: Smash Labs button filling empty space -->
+    <a href="game.html" target="_blank" rel="noopener"
+       class="btn btn-ghost game-smash-btn">
+         Open Smash Labs
+    </a>
+
+</div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CONTACT
+══════════════════════════════════════ -->
+<section id="contact">
+<div class="inner">
+    <div class="section-header reveal">
+        <div class="section-label">Get in Touch</div>
+        <h2 class="section-title">Let's Build Something</h2>
+        <p class="section-sub">Send a message and I'll get back to you within 24 hours.</p>
+    </div>
+
+    <div class="contact-grid reveal">
+
+        <!-- Contact info -->
+        <div class="contact-info">
+            <div class="contact-item">
+                <div class="contact-icon-wrap">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <div><h4>Email</h4><p>samsinx28@gmail.com</p></div>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-icon-wrap">
+                    <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                </div>
+                <div><h4>GitHub</h4><p>https://github.com/samsinx28</p></div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
+                </div>
+                <div><h4>Instagram</h4><p>https://instagram.com/samsinx28</p></div>
+            </div>
+        </div>
+
+        <!-- Contact form — replace YOUR_FORM_ID with Formspree form ID -->
+        <div class="contact-form-wrap">
+            <form class="contact-form" id="contact-form" onsubmit="handleFormSubmit(event)">
+                <input type="hidden" name="_subject" value="New project enquiry from portfolio">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" required placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea name="message" required placeholder="Tell me about your project..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" id="form-submit-btn" style="width:100%">
+                    Send Message
+                </button>
+            </form>
+            <!-- Success state -->
+            <div id="form-success" style="display:none;text-align:center;padding:3rem 1rem;">
+                <div style="font-size:2.5rem;margin-bottom:1rem;animation:fadeUp 0.5s ease both;">✓</div>
+                <h3 style="font-family:var(--font-head);font-size:1.2rem;color:var(--c);margin-bottom:0.6rem;text-shadow:0 0 20px var(--c);">Message sent.</h3>
+                <p style="font-family:var(--font-code);font-size:0.82rem;color:var(--muted);line-height:1.7;">I'll get back to you within 24 hours.</p>
+                <button onclick="resetForm()" class="btn btn-ghost"
+                        style="margin-top:1.5rem;padding:0.6rem 1.5rem;font-size:0.78rem;">Send another</button>
+            </div>
+            <!-- Error state -->
+            <div id="form-error" style="display:none;margin-top:0.8rem;padding:0.8rem;background:var(--mm);border:1px solid rgba(255,0,60,0.3);font-family:var(--font-code);font-size:0.78rem;color:var(--m);">
+                Something went wrong. Try emailing directly.
+            </div>
+        </div>
+
+    </div>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer>
+    <div class="social-links">
+        <a href="https://github.com/samsinx28" title="GitHub" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        </a>
+        <a href="https://x.com/samsinx28" title="X (Twitter)" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" class="icon-filled"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L2.25 2.25h6.012l4.265 5.64 5.717-5.64Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://instagram.com/samsinx28" title="Instagram" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
+        </a>
+        
+    </div>
+    <p>&copy; 2025 Samsin. Built with care.</p>
+    <p>This site is itself a demo of what I do
+    </p>
+</footer>
+
+<!-- ══════════════════════════════════════
+     SCRIPTS
+     Ordered by dependency:
+     1. Utilities (cursor, typing, scroll-reveal, nav)
+     2. Demo modules
+     3. Background FX (particle canvas, hex rain)
+══════════════════════════════════════ -->
+<script src="js/utils.js"></script>
+<script src="js/demo-password.js"></script>
+<script src="js/demo-sentiment.js"></script>
+<script src="js/demo-chart.js"></script>
+<script src="js/demo-colorpalette.js"></script>
+<script src="js/game-breakout.js"></script>
+<script src="js/background.js"></script>
+<script src="js/contact.js"></script>
+
+</body>
+</html>
