@@ -575,7 +575,7 @@ body:has(button:hover) #cursor-ring {
     border: 1px solid var(--border);
     background: var(--bg);
     overflow: hidden;
-    aspect-ratio: 6 / 7;
+    aspect-ratio: 2 / 1.2;
     /* Never exceed the column width */
     width: 100%;
     max-width: 100%;
