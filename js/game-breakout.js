@@ -772,7 +772,7 @@ window.brkPause = function() {
     paused = !paused;
     if (!paused) lastTs = performance.now();
     const btn = document.getElementById('brk-pause-btn');
-    if (btn) btn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+    if (btn) btn.textContent = paused ? ' Resume' : ' Pause';
 };
 
 /* Restart — called by mobile button */

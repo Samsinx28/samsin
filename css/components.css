@@ -556,13 +556,17 @@ body:has(button:hover) #cursor-ring {
     gap: 1px;
     align-items: flex-start;
     width: 100%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
-/* Canvas column — fills remaining space after side panel */
+/* Canvas column — fills remaining space, never overflows */
 .brk-canvas-col {
     flex: 1;
-    min-width: 0;
+    min-width: 0;       /* critical — allows flex child to shrink below content size */
+    max-width: 100%;
     position: relative;
+    overflow: hidden;
 }
 
 /* Canvas border frame */
@@ -572,13 +576,17 @@ body:has(button:hover) #cursor-ring {
     background: var(--bg);
     overflow: hidden;
     aspect-ratio: 6 / 7;
+    /* Never exceed the column width */
+    width: 100%;
+    max-width: 100%;
 }
 
-/* Canvas fills the frame — game JS handles coordinate scaling */
+/* Canvas fills the frame exactly — game JS scales coords via getBoundingClientRect */
 .brk-frame canvas {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
     touch-action: none;
 }
 
@@ -798,12 +806,17 @@ body:has(button:hover) #cursor-ring {
     display: flex;
     align-items: flex-start;
     gap: 2rem;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
-/* game-main holds the heading + brk-layout and takes natural width */
+/* game-main holds the heading + brk-layout, must not overflow */
 .game-main {
     flex: 1;
     min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 /* Smash Labs button — vertical pill in the empty right column */
@@ -821,7 +834,7 @@ body:has(button:hover) #cursor-ring {
 
 @media (max-width: 900px) {
     /* Stack on mobile — button goes below game, reads normally */
-    .game-inner      { flex-direction: column; }
+    .game-inner      { flex-direction: column; overflow: visible; }
     .game-smash-btn  {
         writing-mode: horizontal-tb;
         padding: 0.9rem 1.5rem;
