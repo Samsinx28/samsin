@@ -2,26 +2,19 @@
  * background.js
  * ─────────────────────────────────────────────
  * Ambient visual effects — loaded last so they
- * never block page content:
- *
- *   1. Particle System — 120 floating dots with
- *      mouse-repulsion and canvas line connections
- *   2. Hex Rain Columns — random glyphs that fall
- *      down the page (CSS animation driven)
- *   3. Cursor Trail — 8-dot fading trail that
- *      follows the mouse pointer
+ * never block page content.
+ * All effects are skipped on touch devices.
  * ─────────────────────────────────────────────
- * All three run in isolated IIFEs so they share
- * no global state with the rest of the site.
  */
 
+/* Detect touch — skip everything heavy on mobile */
+const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
 /* ══════════════════════════════════════
-   1. PARTICLE SYSTEM
-   Canvas-based. 120 particles drift across the
-   viewport and draw connection lines when close.
-   Pauses when the tab is hidden (visibilitychange).
+   1. PARTICLE SYSTEM — desktop only
 ══════════════════════════════════════ */
 (function () {
+    if (isTouchDevice) return; // skip entirely on mobile
     const canvas = document.getElementById('particle-canvas');
     const ctx    = canvas.getContext('2d');
     let W, H;
@@ -124,12 +117,10 @@
 })();
 
 /* ══════════════════════════════════════
-   2. HEX RAIN COLUMNS
-   Spawns 20 absolutely-positioned <span> elements
-   that fall via CSS keyframe animation, each
-   periodically randomising its glyph content.
+   2. HEX RAIN COLUMNS — desktop only
 ══════════════════════════════════════ */
 (function () {
+    if (isTouchDevice) return; // skip on mobile
     const container = document.getElementById('hex-rain');
     const GLYPHS    = '0123456789ABCDEF⬡⬢◈▸▹◂◃⬟⬠▣◉⬤'.split('');
     const COUNT     = 20;
@@ -158,11 +149,10 @@
 })();
 
 /* ══════════════════════════════════════
-   3. CURSOR TRAIL
-   8 small dots that trail behind the mouse,
-   fading in opacity and shrinking in size.
+   3. CURSOR TRAIL — desktop only
 ══════════════════════════════════════ */
 (function () {
+    if (isTouchDevice) return; // no cursor on touch
     const TRAIL_LEN = 8;
     const trail     = [];
 

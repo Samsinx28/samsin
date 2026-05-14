@@ -1,1415 +1,884 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smash Lab</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/matter-js@0.18.0/build/matter.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Smash Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/matter-js@0.18.0/build/matter.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Rajdhani',sans-serif;}
 
-    <style>
-        :root {
-            --cyan: #00f5ff;
-            --magenta: #ff00aa;
-            --gold: #ffd700;
-            --red: #ff3333;
-            --bg-dark: #050810;
-            --bg-mid: #080f1e;
-        }
+#shell{
+  display:flex;flex-direction:column;align-items:center;
+  width:100%;height:100%;
+  padding:5px 8px 4px;gap:4px;
+}
 
-        * { box-sizing: border-box; }
+/* HUD */
+#hud{
+  width:100%;max-width:900px;flex-shrink:0;
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:4px;
+}
+.hud-left{display:flex;flex-direction:column;align-items:flex-start;}
+.hud-center{text-align:center;}
+.hud-right{display:flex;flex-direction:column;align-items:flex-end;}
 
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            overflow: hidden;
-            background: var(--bg-dark);
-            margin: 0;
-        }
+.brand{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(.85rem,2.4vw,1.55rem);font-weight:900;letter-spacing:.12em;
+  color:#00f0ff;text-shadow:0 0 18px rgba(0,240,255,.5),0 0 40px rgba(0,240,255,.18);
+  
+  line-height:1;white-space:nowrap;
+}
+.brand-sub{font-size:clamp(.42rem,.85vw,.58rem);letter-spacing:.22em;color:rgba(0,240,255,.38);text-transform:uppercase;margin-top:1px;}
 
-        /* ---- Ambient BG ---- */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(ellipse 80% 50% at 20% 50%, rgba(0,245,255,0.04) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 40% at 80% 50%, rgba(255,0,170,0.04) 0%, transparent 60%),
-                radial-gradient(ellipse 100% 100% at 50% 50%, #050810 0%, #020408 100%);
-            pointer-events: none;
-            z-index: 0;
-        }
+.stat-label{font-size:clamp(.38rem,.75vw,.52rem);letter-spacing:.24em;color:rgba(0,240,255,.3);text-transform:uppercase;}
+.stat-value{font-family:'Orbitron',sans-serif;font-size:clamp(.8rem,1.9vw,1.35rem);font-weight:700;line-height:1.1;color:#00f0ff;}
+#score-val{color:#00f0ff;}
+#level-val{color:#00f0ff;}
 
-        #root-wrapper {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            padding: 12px 16px 8px;
-            gap: 10px;
-        }
 
-        /* ---- HEADER ---- */
-        header {
-            width: 100%;
-            max-width: 960px;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-        }
+/* Timer bar */
+#timer-wrap{width:100%;max-width:900px;flex-shrink:0;height:3px;border-radius:2px;background:rgba(0,240,255,.08);overflow:hidden;}
+#timer-bar{height:100%;width:100%;background:#00f0ff;box-shadow:0 0 8px rgba(0,240,255,.5);transition:width .28s linear,background .5s;}
+#timer-bar.urgent{background:#ff2244;box-shadow:0 0 10px rgba(255,34,68,.6);animation:pulse-bar .5s ease-in-out infinite alternate;}
+@keyframes pulse-bar{to{opacity:.6;}}
 
-        .brand {
-            text-align: center;
-        }
+/* Game frame */
+#game-wrap{
+  width:100%;max-width:900px;flex:1;min-height:0;
+  position:relative;border-radius:10px;
+  padding:1px;
+  background:rgba(0,240,255,.28);
+  box-shadow:0 0 22px rgba(0,240,255,.1);
+}
 
-        .brand h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(1.4rem, 3vw, 2.2rem);
-            font-weight: 900;
-            letter-spacing: 0.15em;
-            color: transparent;
-            background: linear-gradient(90deg, var(--cyan), #fff, var(--magenta));
-            -webkit-background-clip: text;
-            background-clip: text;
-            text-shadow: none;
-            line-height: 1;
-            position: relative;
-        }
+#game-container{
+  position:relative;width:100%;height:100%;
+  border-radius:9px;overflow:hidden;background:#000;
+}
+#game-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;}
+.input_video{display:none;}
 
-        .brand h1::after {
-            content: 'SMASH LAB';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, var(--cyan), #fff, var(--magenta));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            filter: blur(8px);
-            opacity: 0.5;
-        }
+/* Corner deco */
+.corner{position:absolute;width:13px;height:13px;z-index:5;pointer-events:none;}
+.corner.tl{top:5px;left:5px;border-top:1.5px solid #00f0ff;border-left:1.5px solid #00f0ff;}
+.corner.tr{top:5px;right:5px;border-top:1.5px solid #00f0ff;border-right:1.5px solid #00f0ff;}
+.corner.bl{bottom:5px;left:5px;border-bottom:1.5px solid #00f0ff;border-left:1.5px solid #00f0ff;}
+.corner.br{bottom:5px;right:5px;border-bottom:1.5px solid #00f0ff;border-right:1.5px solid #00f0ff;}
 
-        .brand p {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.75rem;
-            letter-spacing: 0.25em;
-            color: rgba(0,245,255,0.5);
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
+/* Overlay */
+#overlay{
+  position:absolute;inset:0;z-index:20;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.9);backdrop-filter:blur(10px);
+  transition:opacity .5s ease;
+}
+#overlay.hidden{opacity:0;pointer-events:none;}
+.overlay-box{
+  border:1px solid rgba(0,240,255,.22);border-radius:10px;
+  padding:clamp(14px,3.5vw,34px) clamp(18px,5.5vw,48px);
+  background:rgba(0,240,255,.02);text-align:center;
+  max-width:90%;
+}
+.spin-ring{
+  width:38px;height:38px;border-radius:50%;margin:0 auto 10px;
+  border:2.5px solid rgba(0,245,255,.15);border-top-color:#00f5ff;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+#overlay-title{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(1.1rem,3.5vw,2rem);font-weight:900;letter-spacing:.1em;
+  background:linear-gradient(90deg,#ffd700,#fff,#ffd700);background-size:200% auto;
+  
+  animation:shimmer 1.8s linear infinite;display:none;margin-bottom:8px;
+}
+@keyframes shimmer{to{background-position:200% center;}}
+#overlay-msg{
+  font-family:'Orbitron',sans-serif;font-size:clamp(.6rem,1.4vw,.82rem);
+  color:rgba(0,240,255,.88);letter-spacing:.1em;
+}
+#overlay-sub{font-size:clamp(.5rem,1.1vw,.65rem);color:rgba(255,255,255,.32);margin-top:5px;letter-spacing:.14em;}
 
-        /* Score panel */
-        .score-panel {
-            justify-self: end;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
+/* Footer */
+#footer{flex-shrink:0;display:flex;align-items:center;gap:10px;}
+#reset-btn{
+  font-family:'Orbitron',sans-serif;font-size:clamp(.5rem,1.1vw,.68rem);
+  font-weight:700;letter-spacing:.17em;text-transform:uppercase;
+  color:#000;background:#00f0ff;
+  border:none;padding:clamp(6px,1.3vw,9px) clamp(12px,2.8vw,22px);
+  border-radius:5px;cursor:pointer;
+  box-shadow:0 0 16px rgba(0,240,255,.4);
+  transition:transform .12s,box-shadow .12s;-webkit-tap-highlight-color:transparent;
+}
+#reset-btn:hover,#reset-btn:active{transform:scale(.97);box-shadow:0 0 28px #00f0ff;}
+.credit{font-size:clamp(.38rem,.72vw,.52rem);letter-spacing:.2em;color:rgba(255,255,255,.16);text-transform:uppercase;}
 
-        .score-label {
-            font-size: 0.6rem;
-            letter-spacing: 0.3em;
-            color: rgba(255,255,255,0.3);
-            text-transform: uppercase;
-        }
+/* Floating score pop */
+.fpop{
+  position:absolute;pointer-events:none;z-index:30;
+  font-family:'Orbitron',sans-serif;font-weight:900;
+  font-size:clamp(.8rem,2.2vw,1.3rem);
+  animation:floatUp .85s ease forwards;
+  text-shadow:0 0 12px currentColor;
+}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-65px) scale(1.35);}}
 
-        .score-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
-            font-weight: 700;
-            color: var(--gold);
-            line-height: 1;
-            text-shadow: 0 0 20px rgba(255,215,0,0.6), 0 0 40px rgba(255,215,0,0.3);
-        }
+#hud-status{
+  position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
+  font-size:clamp(.35rem,.65vw,.5rem);letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(0,240,255,.28);z-index:5;pointer-events:none;white-space:nowrap;
+}
 
-        /* Combo counter */
-        .combo-panel {
-            justify-self: start;
-        }
-
-        .combo-label {
-            font-size: 0.6rem;
-            letter-spacing: 0.3em;
-            color: rgba(255,255,255,0.3);
-            text-transform: uppercase;
-        }
-
-        #combo-display {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(1rem, 2vw, 1.5rem);
-            font-weight: 700;
-            color: var(--magenta);
-            line-height: 1;
-            text-shadow: 0 0 20px rgba(255,0,170,0.6);
-            transition: transform 0.1s;
-        }
-
-        /* ---- GAME CONTAINER ---- */
-        #game-wrap {
-            width: 100%;
-            max-width: 960px;
-            position: relative;
-        }
-
-        /* Outer glow frame */
-        #game-wrap::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--cyan), transparent 40%, var(--magenta) 100%);
-            z-index: 0;
-        }
-
-        #game-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16/9;
-            border-radius: 12px;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        #game-canvas {
-            display: block;
-            touch-action: none;
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .input_video { display: none; }
-
-        /* ---- OVERLAY ---- */
-        #message-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(2, 4, 12, 0.88);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            z-index: 20;
-            backdrop-filter: blur(6px);
-            transition: opacity 0.6s ease;
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        #message-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .overlay-inner {
-            border: 1px solid rgba(0,245,255,0.2);
-            border-radius: 12px;
-            padding: 32px 48px;
-            background: rgba(0,245,255,0.03);
-            backdrop-filter: blur(12px);
-            position: relative;
-        }
-
-        .overlay-inner::before {
-            content: '';
-            position: absolute;
-            inset: -1px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, rgba(0,245,255,0.3), transparent 50%, rgba(255,0,170,0.3));
-            z-index: -1;
-        }
-
-        .loader-ring {
-            width: 48px;
-            height: 48px;
-            border: 3px solid rgba(0,245,255,0.15);
-            border-top-color: var(--cyan);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 16px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        #message-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(0.85rem, 1.8vw, 1.1rem);
-            color: rgba(0,245,255,0.9);
-            letter-spacing: 0.1em;
-        }
-
-        /* Win overlay special */
-        #win-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            font-weight: 900;
-            color: transparent;
-            background: linear-gradient(90deg, var(--gold), #fff, var(--gold));
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            animation: shimmer 2s linear infinite;
-            letter-spacing: 0.1em;
-            display: none;
-        }
-
-        @keyframes shimmer { to { background-position: 200% center; } }
-
-        /* ---- FOOTER ---- */
-        footer {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        #reset-button {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: #000;
-            background: linear-gradient(135deg, var(--cyan), #00aadd);
-            border: none;
-            padding: 10px 28px;
-            border-radius: 6px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.15s, box-shadow 0.15s;
-            box-shadow: 0 0 20px rgba(0,245,255,0.4), 0 0 40px rgba(0,245,255,0.1);
-        }
-
-        #reset-button::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.3), transparent);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        #reset-button:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 0 30px rgba(0,245,255,0.6), 0 0 60px rgba(0,245,255,0.2); }
-        #reset-button:hover::before { opacity: 1; }
-        #reset-button:active { transform: scale(0.97); }
-
-        .made-by {
-            font-size: 0.65rem;
-            letter-spacing: 0.2em;
-            color: rgba(255,255,255,0.2);
-            text-transform: uppercase;
-        }
-
-        /* ---- Score pop animation ---- */
-        @keyframes scorePop {
-            0% { transform: scale(1); }
-            30% { transform: scale(1.4); }
-            60% { transform: scale(0.9); }
-            100% { transform: scale(1); }
-        }
-
-        .score-pop { animation: scorePop 0.35s ease; }
-
-        /* ---- Floating score text ---- */
-        .float-score {
-            position: absolute;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: var(--gold);
-            text-shadow: 0 0 20px rgba(255,215,0,0.8);
-            pointer-events: none;
-            z-index: 30;
-            animation: floatUp 1s ease forwards;
-        }
-
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
-        }
-
-        /* ---- Scanlines overlay ---- */
-        #scanlines {
-            position: absolute;
-            inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0,0,0,0.06) 2px,
-                rgba(0,0,0,0.06) 4px
-            );
-            pointer-events: none;
-            z-index: 10;
-            border-radius: 12px;
-        }
-
-        /* ---- Corner decorations ---- */
-        .corner {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            z-index: 15;
-        }
-        .corner.tl { top: 6px; left: 6px; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
-        .corner.tr { top: 6px; right: 6px; border-top: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
-        .corner.bl { bottom: 6px; left: 6px; border-bottom: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
-        .corner.br { bottom: 6px; right: 6px; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
-
-        /* HUD elements */
-        .hud-status {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.6rem;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: rgba(0,245,255,0.35);
-            z-index: 15;
-            pointer-events: none;
-        }
-    </style>
+/* Score pop anim */
+@keyframes scPop{0%{transform:scale(1)}45%{transform:scale(1.5)}100%{transform:scale(1)}}
+.sc-pop{animation:scPop .28s ease;}
+</style>
 </head>
 <body>
-<div id="root-wrapper">
+<div id="shell">
 
-    <header>
-        <div class="combo-panel">
-            <div class="combo-label">Combo</div>
-            <div id="combo-display">×1</div>
-        </div>
-        <div class="brand">
-            <h1>SMASH LAB</h1>
-            <p>Pinch · Throw · Destroy</p>
-        </div>
-        <div class="score-panel">
-            <div class="score-label">Targets</div>
-            <div class="score-value" id="score">0 / 5</div>
-        </div>
-    </header>
-
-    <div id="game-wrap">
-        <div id="game-container">
-            <canvas id="game-canvas"></canvas>
-            <video class="input_video"></video>
-
-            <!-- Scanlines -->
-            <div id="scanlines"></div>
-
-            <!-- Corner HUD decorations -->
-            <div class="corner tl"></div>
-            <div class="corner tr"></div>
-            <div class="corner bl"></div>
-            <div class="corner br"></div>
-
-            <div class="hud-status" id="hud-status">HAND TRACKING ACTIVE</div>
-
-            <!-- Overlay -->
-            <div id="message-overlay">
-                <div class="overlay-inner">
-                    <div class="loader-ring" id="loader"></div>
-                    <div id="win-text">VICTORY</div>
-                    <p id="message-text">Initializing Systems...</p>
-                </div>
-            </div>
-        </div>
+  <div id="hud">
+    <div class="hud-left">
+      <div class="stat-label">Level</div>
+      <div class="stat-value" id="level-val">1</div>
     </div>
+    <div class="hud-center">
+      <div class="brand">SMASH LAB</div>
+      <div class="brand-sub">Pinch · Throw · Destroy</div>
+    </div>
+    <div class="hud-right">
+      <div class="stat-label">Targets</div>
+      <div class="stat-value" id="score-val">0 / 5</div>
+    </div>
+  </div>
 
-    <footer>
-        <button id="reset-button">↺ Reset</button>
-        <span class="made-by">crafted by sangam</span>
-    </footer>
+  <div id="timer-wrap"><div id="timer-bar"></div></div>
+
+  <div id="game-wrap">
+    <div id="game-container">
+      <canvas id="game-canvas"></canvas>
+      <video class="input_video"></video>
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div id="hud-status">HAND TRACKING ACTIVE</div>
+      <div id="overlay">
+        <div class="overlay-box">
+          <div class="spin-ring" id="spin-ring"></div>
+          <div id="overlay-title">VICTORY</div>
+          <div id="overlay-msg">Initializing…</div>
+          <div id="overlay-sub"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer">
+    <button id="reset-btn">↺ New Game</button>
+    <span class="credit">by sangam</span>
+  </div>
 </div>
 
 <script type="module">
-// ============================================================
-// AUDIO ENGINE
-// ============================================================
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null;
-
+// ═══════════════════════════════════════════════
+// AUDIO
+// ═══════════════════════════════════════════════
+let actx = null;
 function ensureAudio() {
-    if (!audioCtx) audioCtx = new AudioCtx();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
 }
-
-function playExplosion(x, y) {
-    ensureAudio();
-    const t = audioCtx.currentTime;
-
-    // Low boom
-    const osc1 = audioCtx.createOscillator();
-    const gain1 = audioCtx.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(120, t);
-    osc1.frequency.exponentialRampToValueAtTime(30, t + 0.3);
-    gain1.gain.setValueAtTime(0.6, t);
-    gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-    osc1.connect(gain1);
-    gain1.connect(audioCtx.destination);
-    osc1.start(t); osc1.stop(t + 0.4);
-
-    // Noise crackle
-    const bufLen = audioCtx.sampleRate * 0.2;
-    const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1);
-    const noiseSource = audioCtx.createBufferSource();
-    noiseSource.buffer = buf;
-    const bandpass = audioCtx.createBiquadFilter();
-    bandpass.type = 'bandpass';
-    bandpass.frequency.value = 1200;
-    bandpass.Q.value = 0.8;
-    const gain2 = audioCtx.createGain();
-    gain2.gain.setValueAtTime(0.4, t);
-    gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
-    noiseSource.connect(bandpass);
-    bandpass.connect(gain2);
-    gain2.connect(audioCtx.destination);
-    noiseSource.start(t); noiseSource.stop(t + 0.25);
+function tone(type, f0, f1, dur, vol, delay=0) {
+  if (!actx) return;
+  const t = actx.currentTime + delay;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = type; o.frequency.setValueAtTime(f0, t);
+  if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t+dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+dur+.02);
 }
-
-function playGrab() {
-    ensureAudio();
-    const t = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(600, t);
-    osc.frequency.exponentialRampToValueAtTime(900, t + 0.08);
-    gain.gain.setValueAtTime(0.15, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(t); osc.stop(t + 0.12);
+function noise(dur, freq, q, vol, delay=0) {
+  if (!actx) return;
+  const t = actx.currentTime + delay;
+  const n = actx.sampleRate * dur;
+  const buf = actx.createBuffer(1, n, actx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i=0;i<n;i++) d[i]=Math.random()*2-1;
+  const src = actx.createBufferSource(); src.buffer = buf;
+  const bp = actx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=freq; bp.Q.value=q;
+  const g = actx.createGain(); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  src.connect(bp); bp.connect(g); g.connect(actx.destination); src.start(t);
 }
+function playGrab()    { tone('sine',600,900,.1,.13); }
+function playThrow()   { tone('sawtooth',280,60,.18,.17); }
+function playHit()     { tone('sine',110,25,.38,.55); noise(.22,1100,.9,.4); }
+function playCollide() { noise(.05,800,.5,.09); }
+function playWin()     { [523,659,784,1046].forEach((f,i)=>tone('triangle',f,f,.35,.2,i*.13)); }
+function playTick()    { tone('sine',440,440,.04,.05); }
 
-function playThrow() {
-    ensureAudio();
-    const t = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(300, t);
-    osc.frequency.exponentialRampToValueAtTime(80, t + 0.15);
-    gain.gain.setValueAtTime(0.18, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(t); osc.stop(t + 0.2);
-}
-
-function playWin() {
-    ensureAudio();
-    const t = audioCtx.currentTime;
-    const notes = [523, 659, 784, 1046];
-    notes.forEach((freq, i) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0, t + i * 0.12);
-        gain.gain.linearRampToValueAtTime(0.25, t + i * 0.12 + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.12 + 0.4);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(t + i * 0.12); osc.stop(t + i * 0.12 + 0.45);
-    });
-}
-
-function playCollision() {
-    ensureAudio();
-    const t = audioCtx.currentTime;
-    const bufLen = audioCtx.sampleRate * 0.05;
-    const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufLen);
-    const ns = audioCtx.createBufferSource();
-    ns.buffer = buf;
-    const g = audioCtx.createGain();
-    g.gain.setValueAtTime(0.12, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-    ns.connect(g); g.connect(audioCtx.destination);
-    ns.start(t);
-}
-
-// ============================================================
+// ═══════════════════════════════════════════════
 // DOM
-// ============================================================
-const videoElement = document.querySelector('.input_video');
-const canvasElement = document.getElementById('game-canvas');
-const canvasCtx = canvasElement.getContext('2d');
-const gameContainer = document.getElementById('game-container');
-const messageOverlay = document.getElementById('message-overlay');
-const messageText = document.getElementById('message-text');
-const loader = document.getElementById('loader');
-const winText = document.getElementById('win-text');
-const resetButton = document.getElementById('reset-button');
-const scoreElement = document.getElementById('score');
-const comboDisplay = document.getElementById('combo-display');
+// ═══════════════════════════════════════════════
+const video     = document.querySelector('.input_video');
+const canvas    = document.getElementById('game-canvas');
+const ctx       = canvas.getContext('2d', { alpha:false });
+const gameCont  = document.getElementById('game-container');
+const overlay   = document.getElementById('overlay');
+const ovTitle   = document.getElementById('overlay-title');
+const ovMsg     = document.getElementById('overlay-msg');
+const ovSub     = document.getElementById('overlay-sub');
+const spinRing  = document.getElementById('spin-ring');
+const resetBtn  = document.getElementById('reset-btn');
+const scoreEl   = document.getElementById('score-val');
 const hudStatus = document.getElementById('hud-status');
+const timerBar  = document.getElementById('timer-bar');
+const levelEl   = document.getElementById('level-val');
 
-// ============================================================
-// MATTER.JS
-// ============================================================
+// ═══════════════════════════════════════════════
+// MATTER
+// ═══════════════════════════════════════════════
 const { Engine, Events, Runner, World, Bodies, Body, Composite, Constraint, Query } = Matter;
-
 let engine, runner;
-const objects = [];
-const targets = [];
-const particles = [];
-const trailParticles = [];
-let score = 0;
-let totalTargets = 0;
-let combo = 1;
-let lastHitTime = 0;
 
-// ============================================================
-// HAND TRACKING VARS (unchanged logic)
-// ============================================================
-let rawHandLandmarks = null;
-let smoothedHandLandmarks = null;
-const SMOOTHING_FACTOR = 0.4;
-let isGrabbing = false;
-let canRelease = false;
-const MIN_HOLD_DURATION = 1000;
-let grabbedBody = null;
-let grabConstraint = null;
-const velocityBuffer = [];
-const VELOCITY_BUFFER_SIZE = 5;
-let handVelocity = { x: 0, y: 0 };
-const THROW_MULTIPLIER = 4.5;
-let handLossTimeout = null;
-const HAND_LOSS_DELAY = 300;
-let handVisibilityTimeout = null;
-const HAND_VISIBILITY_DELAY = 2000;
-let canThrow = false;
-const MIN_GRAB_DURATION_FOR_THROW = 1000;
-const GRAB_THRESHOLD = 0.05;
+// ═══════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════
+const TOTAL    = 5;
+const TIMELIMIT= 30;
+let score=0, timeLeft=TIMELIMIT;
+let currentLevel=1;
+let timerInterval=null, timerRunning=false, gameActive=false;
 
-// ============================================================
-// BACKGROUND — animated grid + nebula
-// ============================================================
-let bgCanvas, bgCtx;
-let bgTime = 0;
-let gridParticles = [];
+const objects=[], targets=[], particles=[], shockwaves=[], trails=[];
 
-function initBackground() {
-    bgCanvas = document.createElement('canvas');
-    bgCanvas.setAttribute('data-bg', '1');
-    bgCanvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;';
-    gameContainer.insertBefore(bgCanvas, gameContainer.firstChild);
-    bgCtx = bgCanvas.getContext('2d');
-    bgCanvas.width = canvasElement.width;
-    bgCanvas.height = canvasElement.height;
+// ═══════════════════════════════════════════════
+// HAND STATE (logic preserved exactly)
+// ═══════════════════════════════════════════════
+let rawLM=null, smoothLM=null;
+const SMOOTH=.4;
+let isGrabbing=false, canRelease=false, canThrow=false;
+let grabbedBody=null, grabConstraint=null;
+const velBuf=[]; const VEL=5;
+let handVel={x:0,y:0};
+const THROW_MULT=4.5, GRAB_THRESH=.05, MIN_HOLD=1000, MIN_THROW=1000;
+const HAND_LOSS=300, HAND_VIS=2000;
+let handLossTO=null, handVisTO=null, prevGrab=null;
 
-    // Star particles
-    for (let i = 0; i < 80; i++) {
-        gridParticles.push({
-            x: Math.random() * bgCanvas.width,
-            y: Math.random() * bgCanvas.height,
-            r: Math.random() * 1.5 + 0.3,
-            alpha: Math.random() * 0.5 + 0.1,
-            speed: Math.random() * 0.1 + 0.02,
-            twinkleSpeed: Math.random() * 0.02 + 0.005
-        });
-    }
+// ═══════════════════════════════════════════════
+// BACKGROUND — fully pre-baked, just drawImage + stars
+// ═══════════════════════════════════════════════
+let staticBg=null, stars=[], bgTime=0, starTick=0;
+
+function bakeBg(W,H) {
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const cx=c.getContext('2d');
+  // Base — pure black
+  cx.fillStyle='#000'; cx.fillRect(0,0,W,H);
+  // Cyan nebula
+  [{x:W*.15,y:H*.2,r:W*.32,c:'rgba(0,200,255,.04)'},{x:W*.85,y:H*.75,r:W*.26,c:'rgba(0,180,255,.035)'},
+   {x:W*.5,y:H*.5,r:W*.4,c:'rgba(0,100,200,.025)'}
+  ].forEach(b=>{
+    const ng=cx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r);
+    ng.addColorStop(0,b.c); ng.addColorStop(1,'transparent');
+    cx.fillStyle=ng; cx.beginPath(); cx.arc(b.x,b.y,b.r,0,Math.PI*2); cx.fill();
+  });
+  // Perspective grid (converging lines)
+  const vx=W*.5, vy=H*.5;
+  cx.strokeStyle='rgba(0,240,255,.03)'; cx.lineWidth=.6;
+  cx.beginPath();
+  for(let r=0;r<=14;r++){const y=H*r/14;cx.moveTo(0,y);cx.lineTo(W,y);}
+  for(let c2=0;c2<=18;c2++){const x=W*c2/18;cx.moveTo(vx,vy);cx.lineTo(x,H);cx.moveTo(vx,vy);cx.lineTo(x,0);}
+  cx.stroke();
+  // Static dim stars
+  cx.fillStyle='rgba(0,240,255,.18)';
+  for(let i=0;i<55;i++){const sx=Math.random()*W,sy=Math.random()*H,sr=Math.random()*.75+.2;cx.beginPath();cx.arc(sx,sy,sr,0,Math.PI*2);cx.fill();}
+  return c;
 }
 
-function drawBackground() {
-    bgTime += 0.005;
-    const W = bgCanvas.width, H = bgCanvas.height;
-    bgCtx.clearRect(0, 0, W, H);
-
-    // Deep space gradient
-    const grad = bgCtx.createRadialGradient(W*0.3, H*0.4, 0, W*0.5, H*0.5, W*0.8);
-    grad.addColorStop(0, 'rgba(0,15,40,1)');
-    grad.addColorStop(0.5, 'rgba(2,8,20,1)');
-    grad.addColorStop(1, 'rgba(1,3,10,1)');
-    bgCtx.fillStyle = grad;
-    bgCtx.fillRect(0, 0, W, H);
-
-    // Nebula blobs
-    const blobs = [
-        { x: W*0.2, y: H*0.3, r: W*0.3, c1: 'rgba(0,100,255,0.04)', c2: 'transparent' },
-        { x: W*0.8, y: H*0.7, r: W*0.25, c1: 'rgba(200,0,180,0.04)', c2: 'transparent' },
-        { x: W*0.5, y: H*0.1, r: W*0.2, c1: 'rgba(0,200,200,0.03)', c2: 'transparent' },
-    ];
-    blobs.forEach(b => {
-        const g = bgCtx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-        g.addColorStop(0, b.c1); g.addColorStop(1, b.c2);
-        bgCtx.fillStyle = g;
-        bgCtx.beginPath(); bgCtx.arc(b.x, b.y, b.r, 0, Math.PI*2); bgCtx.fill();
-    });
-
-    // Grid lines
-    const gridSpacing = 60;
-    const gridAlpha = 0.06;
-    bgCtx.strokeStyle = `rgba(0,245,255,${gridAlpha})`;
-    bgCtx.lineWidth = 0.5;
-    for (let x = 0; x < W; x += gridSpacing) {
-        bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, H); bgCtx.stroke();
-    }
-    for (let y = 0; y < H; y += gridSpacing) {
-        bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(W, y); bgCtx.stroke();
-    }
-
-    // Stars
-    gridParticles.forEach(p => {
-        p.alpha += Math.sin(bgTime * p.twinkleSpeed * 100) * 0.005;
-        p.alpha = Math.max(0.05, Math.min(0.7, p.alpha));
-        bgCtx.beginPath();
-        bgCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-        bgCtx.fillStyle = `rgba(180,220,255,${p.alpha})`;
-        bgCtx.fill();
-    });
+function initBg() {
+  const W=canvas.width, H=canvas.height;
+  staticBg=bakeBg(W,H);
+  stars=[];
+  for(let i=0;i<32;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*.85+.25,phase:Math.random()*Math.PI*2,spd:Math.random()*.038+.012});
 }
 
-// ============================================================
-// UTILITY
-// ============================================================
-function lerp(start, end, amt) { return (1 - amt) * start + amt * end; }
+function drawBg() {
+  bgTime+=.016; starTick++;
+  ctx.drawImage(staticBg,0,0);
+  if(starTick%2===0){
+    stars.forEach(s=>{
+      const a=.08+.42*(0.5+0.5*Math.sin(bgTime*s.spd*60+s.phase));
+      ctx.fillStyle=`rgba(0,240,255,${a.toFixed(2)})`;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+    });
+  }
+}
 
-// ============================================================
-// SETUP
-// ============================================================
+// ═══════════════════════════════════════════════
+// SETUP / RESET
+// ═══════════════════════════════════════════════
+let gameLoopRunning=false;
+
 function setup() {
-    canvasElement.width = gameContainer.clientWidth;
-    canvasElement.height = gameContainer.clientHeight;
-
-    engine = Engine.create();
-    engine.world.gravity.y = 1;
-
-    const wt = 100;
-    const ground = Bodies.rectangle(canvasElement.width/2, canvasElement.height+wt/2, canvasElement.width*2, wt, { isStatic:true });
-    const wallL = Bodies.rectangle(-wt/2, canvasElement.height/2, wt, canvasElement.height*2, { isStatic:true });
-    const wallR = Bodies.rectangle(canvasElement.width+wt/2, canvasElement.height/2, wt, canvasElement.height*2, { isStatic:true });
-    const ceiling = Bodies.rectangle(canvasElement.width/2, -wt/2, canvasElement.width*2, wt, { isStatic:true });
-    World.add(engine.world, [ground, wallL, wallR, ceiling]);
-
-    initBackground();
-    resetGame();
-
-    runner = Runner.create();
-    Runner.run(runner, engine);
-    setupCollisionHandling();
-    if (!gameLoopRunning) { gameLoopRunning = true; requestAnimationFrame(gameLoop); }
+  canvas.width  = gameCont.clientWidth  || 640;
+  canvas.height = gameCont.clientHeight || 360;
+  initBg();
+  if(engine){World.clear(engine.world);Engine.clear(engine);}
+  if(runner) Runner.stop(runner);
+  engine=Engine.create({gravity:{y:1}});
+  runner=Runner.create();
+  const W=canvas.width, H=canvas.height, wt=80;
+  World.add(engine.world,[
+    Bodies.rectangle(W/2,H+wt/2,W*3,wt,{isStatic:true,label:'wall'}),
+    Bodies.rectangle(-wt/2,H/2,wt,H*3,{isStatic:true,label:'wall'}),
+    Bodies.rectangle(W+wt/2,H/2,wt,H*3,{isStatic:true,label:'wall'}),
+    Bodies.rectangle(W/2,-wt/2,W*3,wt,{isStatic:true,label:'wall'}),
+  ]);
+  setupCollisions();
+  resetGame();
+  if(!gameLoopRunning){gameLoopRunning=true;gameLoop();}
 }
 
 function resetGame() {
-    World.clear(engine.world, false);
-    objects.length = 0;
-    targets.length = 0;
-    particles.length = 0;
-    trailParticles.length = 0;
-    score = 0;
-    combo = 1;
-    totalTargets = 5;
-    updateScore();
-    updateCombo();
-
-    const wt = 100;
-    const ground = Bodies.rectangle(canvasElement.width/2, canvasElement.height+wt/2, canvasElement.width*2, wt, { isStatic:true });
-    const wallL = Bodies.rectangle(-wt/2, canvasElement.height/2, wt, canvasElement.height*2, { isStatic:true });
-    const wallR = Bodies.rectangle(canvasElement.width+wt/2, canvasElement.height/2, wt, canvasElement.height*2, { isStatic:true });
-    const ceiling = Bodies.rectangle(canvasElement.width/2, -wt/2, canvasElement.width*2, wt, { isStatic:true });
-    World.add(engine.world, [ground, wallL, wallR, ceiling]);
-
-    addObjects();
-    addTargets();
+  objects.forEach(b=>World.remove(engine.world,b));
+  targets.forEach(b=>World.remove(engine.world,b));
+  objects.length=0;targets.length=0;particles.length=0;shockwaves.length=0;trails.length=0;
+  if(grabConstraint){World.remove(engine.world,grabConstraint);grabConstraint=null;}
+  grabbedBody=null;isGrabbing=false;canRelease=false;canThrow=false;
+  score=0;timeLeft=TIMELIMIT;timerRunning=false;
+  clearInterval(timerInterval);
+  gameActive=true;
+  updateHUD(); updateTimerBar();
+  if(levelEl) levelEl.textContent=currentLevel;
+  spawnObjects(); spawnTargets();
+  // Invalidate sprite cache on reset (in case canvas size changed)
+  Object.keys(spriteCache).forEach(k=>delete spriteCache[k]);
+  targetSprite=null;
 }
 
-// ============================================================
-// OBJECTS
-// ============================================================
-function addObjects() {
-    const objectTypes = ['sphere', 'wood', 'spear', 'sword'];
-    for (let i = 0; i < 8; i++) {
-        const x = Math.random() * (canvasElement.width * 0.6) + (canvasElement.width * 0.2);
-        const y = Math.random() * (canvasElement.height / 3);
-        const type = objectTypes[i % objectTypes.length];
-        let body;
-        switch (type) {
-            case 'sphere': {
-                const radius = 25;
-                body = Bodies.circle(x, y, radius, { restitution:0.8, friction:0.01, render:{ objectType:'sphere', color:'#DD6B20', radius } });
-                break;
-            }
-            case 'wood': {
-                const woodWidth=100, woodHeight=30;
-                body = Bodies.rectangle(x, y, woodWidth, woodHeight, { restitution:0.4, friction:0.1, render:{ objectType:'wood', width:woodWidth, height:woodHeight } });
-                break;
-            }
-            case 'spear': {
-                const spearLength=150, spearWidth=10;
-                body = Bodies.rectangle(x, y, spearLength, spearWidth, { restitution:0.2, friction:0.05, render:{ objectType:'spear', width:spearLength, height:spearWidth } });
-                break;
-            }
-            case 'sword': {
-                const swordLength=120, swordWidth=15;
-                body = Bodies.rectangle(x, y, swordLength, swordWidth, { restitution:0.1, friction:0.02, render:{ objectType:'sword', width:swordLength, height:swordWidth } });
-                break;
-            }
-        }
-        objects.push(body);
-        World.add(engine.world, body);
+// ═══════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════
+function startTimer(){
+  if(timerRunning) return; timerRunning=true;
+  timerInterval=setInterval(()=>{
+    if(!gameActive) return;
+    timeLeft=Math.max(0,timeLeft-1);
+    updateTimerBar();
+    if(timeLeft<=5) playTick();
+    if(timeLeft===0){clearInterval(timerInterval);showTimeUp();}
+  },1000);
+}
+function updateTimerBar(){
+  timerBar.style.width=(timeLeft/TIMELIMIT*100)+'%';
+  timerBar.classList.toggle('urgent',timeLeft<8);
+}
+function showTimeUp(){
+  gameActive=false;
+  ovTitle.style.display='none'; spinRing.style.display='none';
+  ovMsg.textContent=`TIME! ${score}/${TOTAL} targets hit`;
+  ovSub.textContent='TAP NEW GAME TO TRY AGAIN';
+  overlay.classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════════════
+// SPAWN — responsive sizing
+// ═══════════════════════════════════════════════
+function spawnObjects() {
+  const W=canvas.width, H=canvas.height;
+  const TYPES=['sphere','wood','spear','sword'];
+  const count=Math.min(9,Math.max(4,Math.floor(W/85)));
+  for(let i=0;i<count;i++){
+    // Spawn clustered near bottom-center, throw upward with spread
+    // This guarantees objects are visible immediately and definitely moving
+    const x = W*0.2 + Math.random()*W*0.6;
+    const y = H*0.85 + Math.random()*H*0.1;
+    const type=TYPES[i%TYPES.length];
+    let b;
+    switch(type){
+      case 'sphere':{const r=Math.round(W*.028);b=Bodies.circle(x,y,r,{restitution:.75,friction:.01,render:{objectType:'sphere',radius:r}});break;}
+      case 'wood':  {const w=Math.round(W*.1),h=Math.round(H*.05);b=Bodies.rectangle(x,y,w,h,{restitution:.38,friction:.1,render:{objectType:'wood',width:w,height:h}});break;}
+      case 'spear': {const w=Math.round(W*.15),h=Math.round(H*.02);b=Bodies.rectangle(x,y,w,h,{restitution:.18,friction:.05,render:{objectType:'spear',width:w,height:h}});break;}
+      case 'sword': {const w=Math.round(W*.12),h=Math.round(H*.028);b=Bodies.rectangle(x,y,w,h,{restitution:.1,friction:.02,render:{objectType:'sword',width:w,height:h}});break;}
     }
+    // Strong upward launch with horizontal spread — fills the play area
+    const vx = (Math.random() - 0.5) * 16;
+    const vy = -(Math.random() * 12 + 10);
+    Body.setVelocity(b, {x: vx, y: vy});
+    Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.2);
+    objects.push(b); World.add(engine.world,b);
+  }
 }
 
-function addTargets() {
-    const radius = 25;
-    const padding = 40;
-    const positions = [
-        { x: padding, y: canvasElement.height * 0.3 },
-        { x: padding, y: canvasElement.height * 0.65 },
-        { x: canvasElement.width - padding, y: canvasElement.height * 0.3 },
-        { x: canvasElement.width - padding, y: canvasElement.height * 0.65 },
-        { x: canvasElement.width / 2, y: padding }
-    ];
-    positions.forEach(pos => {
-        const target = Bodies.circle(pos.x, pos.y, radius, {
-            isStatic: true, isSensor: true,
-            render: { fillStyle: '#E53E3E', objectType: 'target' },
-            label: 'target'
-        });
-        targets.push(target);
-        World.add(engine.world, target);
-    });
+function getLevelLayout(W,H,r){
+  const pad=W*.07;
+  const lvl=((currentLevel-1)%5)+1; // cycle every 5
+  const speedBase=W*.0014*(1+Math.min(currentLevel-1,6)*.12); // speeds up each level
+  const layouts={
+    1:[
+      {x:pad,y:H*.28,moving:false},
+      {x:pad,y:H*.65,moving:false},
+      {x:W-pad,y:H*.28,moving:false},
+      {x:W-pad,y:H*.65,moving:false},
+      {x:W/2,y:pad+r,moving:true,rng:W*.28},
+    ],
+    2:[
+      {x:W*.2,y:H*.18,moving:false},
+      {x:W*.5,y:H*.35,moving:true,rng:W*.2},
+      {x:W*.8,y:H*.18,moving:false},
+      {x:W*.25,y:H*.7,moving:false},
+      {x:W*.75,y:H*.7,moving:true,rng:W*.22},
+    ],
+    3:[
+      {x:W*.5,y:H*.13,moving:true,rng:W*.35},
+      {x:W*.5,y:H*.42,moving:false},
+      {x:W*.22,y:H*.56,moving:true,rng:W*.16},
+      {x:W*.78,y:H*.56,moving:true,rng:W*.16},
+      {x:W*.5,y:H*.74,moving:false},
+    ],
+    4:[
+      {x:W*.12,y:H*.2,moving:true,rng:W*.14,fast:true},
+      {x:W*.88,y:H*.2,moving:true,rng:W*.14,fast:true},
+      {x:W*.5,y:H*.22,moving:false},
+      {x:W*.28,y:H*.66,moving:true,rng:W*.24,fast:true},
+      {x:W*.72,y:H*.66,moving:true,rng:W*.24,fast:true},
+    ],
+    5: Array.from({length:5},()=>({
+      x:pad+Math.random()*(W-pad*2),
+      y:H*.1+Math.random()*H*.68,
+      moving:true,rng:W*(.15+Math.random()*.3),fast:Math.random()>.35
+    })),
+  };
+  return (layouts[lvl]||layouts[1]).map(p=>({...p,rng:p.rng||W*.28,spd:speedBase*(p.fast?1.5:Math.random()*.4+.8)}));
 }
 
-// ============================================================
+function spawnTargets(){
+  const W=canvas.width, H=canvas.height;
+  const r=Math.round(W*.031);
+  getLevelLayout(W,H,r).forEach(p=>{
+    const b=Bodies.circle(p.x,p.y,r,{isStatic:true,isSensor:true,label:'target',
+      render:{objectType:'target',radius:r,moving:p.moving,
+        moveOrigin:p.x,moveRange:p.rng,
+        movePhase:Math.random()*Math.PI*2,moveSpeed:p.spd}});
+    targets.push(b); World.add(engine.world,b);
+  });
+}
+
+// ═══════════════════════════════════════════════
 // COLLISIONS
-// ============================================================
-function setupCollisionHandling() {
-    Events.on(engine, 'collisionStart', (event) => {
-        const pairs = event.pairs;
-        for (let i = 0; i < pairs.length; i++) {
-            const { bodyA, bodyB } = pairs[i];
-            let targetBody = null, otherBody = null;
-            if (bodyA.label === 'target' && objects.includes(bodyB)) { targetBody = bodyA; otherBody = bodyB; }
-            else if (bodyB.label === 'target' && objects.includes(bodyA)) { targetBody = bodyB; otherBody = bodyA; }
-            if (targetBody && otherBody.speed > 2) {
-                destroyTarget(targetBody);
-            } else if (otherBody && !targetBody && otherBody.speed > 3) {
-                playCollision();
-            }
-        }
+// ═══════════════════════════════════════════════
+function setupCollisions(){
+  Events.on(engine,'collisionStart',ev=>{
+    ev.pairs.forEach(({bodyA,bodyB})=>{
+      let tgt=null,other=null;
+      if(bodyA.label==='target'&&objects.includes(bodyB)){tgt=bodyA;other=bodyB;}
+      if(bodyB.label==='target'&&objects.includes(bodyA)){tgt=bodyB;other=bodyA;}
+      if(tgt&&other.speed>2){destroyTarget(tgt);}
+      else if(!tgt&&other&&other.speed>3){playCollide();}
     });
+  });
 }
 
-function destroyTarget(targetBody) {
-    const targetIndex = targets.indexOf(targetBody);
-    if (targetIndex === -1) return;
+function destroyTarget(tgt){
+  const idx=targets.indexOf(tgt); if(idx===-1) return;
+  const cx=tgt.position.x, cy=tgt.position.y;
+  const isMoving=tgt.render.moving;
 
-    const now = Date.now();
-    if (now - lastHitTime < 2000) { combo = Math.min(combo + 1, 10); }
-    else { combo = 1; }
-    lastHitTime = now;
-    updateCombo();
+  // Particles — sparks + shards
+  for(let i=0;i<36;i++){
+    const angle=Math.PI*2*i/36+(Math.random()-.5)*.35;
+    const spd=Math.random()*6.5+2;
+    const col=i%3===0?[0,240,255]:i%3===1?[120,255,255]:[0,180,220];
+    particles.push({x:cx,y:cy,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd,r:Math.random()*4+1.5,a:1,life:.953,col});
+  }
+  shockwaves.push({x:cx,y:cy,r:4,a:1,spd:7});
+  shockwaves.push({x:cx,y:cy,r:2,a:.65,spd:11});
 
-    // Explosion particles — more and varied
-    const cx = targetBody.position.x, cy = targetBody.position.y;
-    for (let i = 0; i < 40; i++) {
-        const angle = (Math.PI * 2 * i) / 40 + (Math.random() - 0.5) * 0.5;
-        const speed = Math.random() * 7 + 2;
-        particles.push({
-            x: cx, y: cy,
-            vx: Math.cos(angle) * speed * (0.5 + Math.random() * 0.5),
-            vy: Math.sin(angle) * speed * (0.5 + Math.random() * 0.5),
-            radius: Math.random() * 5 + 2,
-            alpha: 1,
-            life: 0.96 + Math.random() * 0.02,
-            color: i % 3 === 0 ? [255,215,0] : i % 3 === 1 ? [255,80,80] : [255,160,60],
-        });
+  playHit();
+  startTimer();
+  spawnPop(cx,cy,isMoving?2:1);
+  World.remove(engine.world,tgt);
+  targets.splice(idx,1);
+  score++; updateHUD();
+  if(score===TOTAL) setTimeout(()=>showWin(),200);
+}
+
+function showWin(){
+  gameActive=false; clearInterval(timerInterval); playWin();
+  currentLevel++;
+  spinRing.style.display='none'; ovTitle.style.display='block';
+  ovTitle.textContent='LEVEL CLEAR';
+  ovMsg.textContent=`All ${TOTAL} targets destroyed!`;
+  ovSub.textContent=`Advancing to Level ${currentLevel}…`;
+  overlay.classList.remove('hidden');
+  // Auto-advance to next level
+  setTimeout(()=>{
+    overlay.classList.add('hidden');
+    resetGame();
+  }, 2200);
+}
+
+function updateHUD(){
+  scoreEl.textContent=`${score} / ${TOTAL}`;
+  scoreEl.classList.remove('sc-pop'); void scoreEl.offsetWidth; scoreEl.classList.add('sc-pop');
+}
+
+function spawnPop(x,y,bonus){
+  const el=document.createElement('div'); el.className='fpop';
+  el.textContent=bonus>1?'+2 ◉':'+1';
+  el.style.left=(x/canvas.width*100)+'%';
+  el.style.top=(y/canvas.height*100)+'%';
+  el.style.color='#00f0ff';
+  gameCont.appendChild(el);
+  setTimeout(()=>el.remove(),850);
+}
+
+// ═══════════════════════════════════════════════
+// HAND LOGIC (identical to original)
+// ═══════════════════════════════════════════════
+function lerp(a,b,t){return a+(b-a)*t;}
+
+function onHandResults(r){
+  rawLM=r.multiHandLandmarks?.[0]??null;
+  if(rawLM){if(handLossTO){clearTimeout(handLossTO);handLossTO=null;}hudStatus.textContent='HAND TRACKING ACTIVE';hudStatus.style.color='rgba(0,245,255,.3)';}
+  else{hudStatus.textContent='SCANNING…';hudStatus.style.color='rgba(255,150,0,.3)';}
+}
+
+function smoothHand(){
+  if(rawLM){
+    if(handVisTO){clearTimeout(handVisTO);handVisTO=null;}
+    if(!smoothLM) smoothLM=JSON.parse(JSON.stringify(rawLM));
+    else rawLM.forEach((lm,i)=>{smoothLM[i].x=lerp(smoothLM[i].x,lm.x,SMOOTH);smoothLM[i].y=lerp(smoothLM[i].y,lm.y,SMOOTH);});
+  } else if(smoothLM&&!handVisTO){handVisTO=setTimeout(()=>{smoothLM=null;handVisTO=null;},HAND_VIS);}
+}
+
+function handleGrab(){
+  if(!smoothLM){
+    if(isGrabbing&&grabConstraint&&!handLossTO){
+      handLossTO=setTimeout(()=>{
+        World.remove(engine.world,grabConstraint);
+        if(grabbedBody&&canThrow){Body.setVelocity(grabbedBody,handVel);playThrow();}
+        grabConstraint=null;grabbedBody=null;isGrabbing=false;canThrow=false;canRelease=false;velBuf.length=0;handLossTO=null;
+      },HAND_LOSS);
     }
+    return;
+  }
+  const th=smoothLM[4],ix=smoothLM[8];
+  const dist=Math.hypot(th.x-ix.x,th.y-ix.y);
+  const gp={x:(1-(th.x+ix.x)*.5)*canvas.width,y:((th.y+ix.y)*.5)*canvas.height};
 
-    // Ring shockwave
-    shockwaves.push({ x: cx, y: cy, r: 0, maxR: 120, alpha: 1 });
+  velBuf.push({...gp});
+  if(velBuf.length>VEL) velBuf.shift();
+  if(velBuf.length>1){const f=velBuf[0],l=velBuf[velBuf.length-1];handVel.x=(l.x-f.x)/velBuf.length*THROW_MULT;handVel.y=(l.y-f.y)/velBuf.length*THROW_MULT;}
 
-    playExplosion(cx, cy);
-    spawnFloatScore(cx, cy, combo);
-
-    World.remove(engine.world, targetBody);
-    targets.splice(targetIndex, 1);
-    score++;
-    updateScore();
-
-    if (score === totalTargets) {
-        setTimeout(() => showWin(), 300);
+  if(dist<GRAB_THRESH&&!isGrabbing){
+    const hit=Query.point(objects,gp);
+    if(hit.length>0){
+      const b=hit[0];isGrabbing=true;grabbedBody=b;canThrow=false;canRelease=false;velBuf.length=0;playGrab();
+      setTimeout(()=>{if(isGrabbing&&grabbedBody===b)canRelease=true;},MIN_HOLD);
+      setTimeout(()=>{if(isGrabbing&&grabbedBody===b)canThrow=true;},MIN_THROW);
+      grabConstraint=Constraint.create({pointA:gp,bodyB:b,stiffness:.9,length:0,render:{visible:false}});
+      World.add(engine.world,grabConstraint);
     }
+  } else if(dist>=GRAB_THRESH&&isGrabbing&&canRelease){
+    World.remove(engine.world,grabConstraint);
+    if(grabbedBody&&canThrow){Body.setVelocity(grabbedBody,handVel);playThrow();}
+    grabConstraint=null;grabbedBody=null;isGrabbing=false;canThrow=false;canRelease=false;velBuf.length=0;
+  }
+  if(isGrabbing&&grabConstraint){grabConstraint.pointA={...gp};Body.setAngularVelocity(grabbedBody,0);}
+
+  if(prevGrab&&(Math.abs(gp.x-prevGrab.x)>1||Math.abs(gp.y-prevGrab.y)>1)){
+    trails.push({x:gp.x,y:gp.y,r:Math.random()*2.2+.7,a:.5,col:dist<GRAB_THRESH?[0,240,255]:[0,180,200]});
+  }
+  prevGrab={...gp};
 }
 
-const shockwaves = [];
+// ═══════════════════════════════════════════════
+// HAND SKELETON CONNECTIONS
+// ═══════════════════════════════════════════════
+const HAND_CONN=[
+  [0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],
+  [0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],
+  [0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]
+];
 
-function showWin() {
-    playWin();
-    loader.style.display = 'none';
-    winText.style.display = 'block';
-    messageText.textContent = 'All targets destroyed.';
-    messageOverlay.classList.remove('hidden');
-}
-
-function updateScore() {
-    scoreElement.textContent = `${score} / ${totalTargets}`;
-    scoreElement.classList.remove('score-pop');
-    void scoreElement.offsetWidth;
-    scoreElement.classList.add('score-pop');
-}
-
-function updateCombo() {
-    comboDisplay.textContent = `×${combo}`;
-    comboDisplay.style.transform = 'scale(1.4)';
-    setTimeout(() => { comboDisplay.style.transform = 'scale(1)'; }, 150);
-}
-
-function spawnFloatScore(x, y, combo) {
-    const el = document.createElement('div');
-    el.className = 'float-score';
-    el.textContent = combo > 1 ? `+1 ×${combo}` : '+1';
-    el.style.left = (x / canvasElement.width * 100) + '%';
-    el.style.top = (y / canvasElement.height * 100) + '%';
-    gameContainer.appendChild(el);
-    setTimeout(() => el.remove(), 1000);
-}
-
-// ============================================================
-// HAND RESULTS
-// ============================================================
-function onHandResults(results) {
-    rawHandLandmarks = (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) ? results.multiHandLandmarks[0] : null;
-    if (rawHandLandmarks) {
-        if (handLossTimeout) { clearTimeout(handLossTimeout); handLossTimeout = null; }
-        hudStatus.textContent = 'HAND TRACKING ACTIVE';
-        hudStatus.style.color = 'rgba(0,245,255,0.4)';
-    } else {
-        hudStatus.textContent = 'SCANNING FOR HAND...';
-        hudStatus.style.color = 'rgba(255,150,0,0.4)';
+// ═══════════════════════════════════════════════
+// SPRITE CACHE (pre-baked per size)
+// ═══════════════════════════════════════════════
+const spriteCache={};
+function getSprite(type,w,h){
+  const key=`${type}_${w}_${h}`;
+  if(spriteCache[key]) return spriteCache[key];
+  const pad=16;
+  const sc=document.createElement('canvas'); sc.width=w+pad; sc.height=h+pad;
+  const sx=sc.getContext('2d');
+  const ox=pad/2, oy=pad/2;
+  switch(type){
+    case 'sphere':{
+      const r=w/2;
+      const hl=sx.createRadialGradient(ox+r,oy+r,r*.4,ox+r,oy+r,r*1.9);
+      hl.addColorStop(0,'rgba(0,200,255,.18)');hl.addColorStop(1,'transparent');
+      sx.fillStyle=hl;sx.beginPath();sx.arc(ox+r,oy+r,r*1.9,0,Math.PI*2);sx.fill();
+      const bg=sx.createRadialGradient(ox+r*.55,oy+r*.5,1,ox+r,oy+r,r);
+      bg.addColorStop(0,'#90e8ff');bg.addColorStop(.5,'#1890b0');bg.addColorStop(1,'#073850');
+      sx.fillStyle=bg;sx.beginPath();sx.arc(ox+r,oy+r,r,0,Math.PI*2);sx.fill();
+      sx.strokeStyle='rgba(0,240,255,.4)';sx.lineWidth=1.5;sx.stroke();
+      const sp=sx.createRadialGradient(ox+r*.52,oy+r*.42,0,ox+r*.52,oy+r*.42,r*.48);
+      sp.addColorStop(0,'rgba(255,255,255,.52)');sp.addColorStop(1,'transparent');
+      sx.fillStyle=sp;sx.beginPath();sx.arc(ox+r*.52,oy+r*.42,r*.48,0,Math.PI*2);sx.fill();
+      break;
     }
+    case 'wood':{
+      sx.fillStyle='rgba(0,0,0,.3)';sx.fillRect(ox+4,oy+4,w,h);
+      const wg=sx.createLinearGradient(ox,oy,ox,oy+h);
+      wg.addColorStop(0,'#486870');wg.addColorStop(.5,'#2a4850');wg.addColorStop(1,'#122830');
+      sx.fillStyle=wg;sx.fillRect(ox,oy,w,h);
+      sx.strokeStyle='rgba(0,180,220,.18)';sx.lineWidth=1;
+      for(let i=1;i<5;i++){const gy=oy+h*i/5;sx.beginPath();sx.moveTo(ox,gy);sx.bezierCurveTo(ox+w*.3,gy+2,ox+w*.7,gy-2,ox+w,gy);sx.stroke();}
+      sx.strokeStyle='rgba(0,240,255,.3)';sx.lineWidth=1.5;sx.strokeRect(ox+1,oy+1,w-2,h-2);
+      sx.strokeStyle='#001820';sx.lineWidth=2;sx.strokeRect(ox,oy,w,h);
+      break;
+    }
+    case 'spear':{
+      const tipLen=Math.round(w*.24);
+      const sg=sx.createLinearGradient(ox,oy,ox,oy+h);
+      sg.addColorStop(0,'#305868');sg.addColorStop(.5,'#1a3845');sg.addColorStop(1,'#0a1e28');
+      sx.fillStyle=sg;sx.fillRect(ox,oy,w-tipLen,h);
+      sx.strokeStyle='rgba(0,180,220,.2)';sx.lineWidth=1;
+      sx.beginPath();for(let i=1;i<4;i++){const lx=ox+i*(w-tipLen)/4;sx.moveTo(lx,oy);sx.lineTo(lx,oy+h);}sx.stroke();
+      const tg=sx.createLinearGradient(ox+w-tipLen,oy+h/2,ox+w,oy+h/2);
+      tg.addColorStop(0,'#305868');tg.addColorStop(.4,'#00f0ff');tg.addColorStop(1,'#80e8ff');
+      sx.fillStyle=tg;sx.beginPath();sx.moveTo(ox+w,oy+h/2);sx.lineTo(ox+w-tipLen,oy-4);sx.lineTo(ox+w-tipLen,oy+h+4);sx.closePath();sx.fill();
+      sx.strokeStyle='rgba(0,240,255,.55)';sx.lineWidth=1.2;sx.stroke();
+      break;
+    }
+    case 'sword':{
+      const bl=Math.round(w*.73),gd=11;
+      const bg2=sx.createLinearGradient(ox,oy,ox,oy+h);
+      bg2.addColorStop(0,'#90e8ff');bg2.addColorStop(.3,'#2090b0');bg2.addColorStop(.5,'#80d8f0');bg2.addColorStop(.7,'#2090b0');bg2.addColorStop(1,'#90e8ff');
+      sx.fillStyle=bg2;sx.fillRect(ox+gd,oy,bl,h);
+      sx.beginPath();sx.moveTo(ox+gd+bl,oy);sx.lineTo(ox+w,oy+h/2);sx.lineTo(ox+gd+bl,oy+h);sx.closePath();sx.fill();
+      sx.strokeStyle='rgba(0,200,255,.4)';sx.lineWidth=1.5;sx.beginPath();sx.moveTo(ox+gd+8,oy+h/2);sx.lineTo(ox+gd+bl*.78,oy+h/2);sx.stroke();
+      sx.fillStyle='#005568';sx.fillRect(ox+3,oy-7,gd,h+14);sx.strokeStyle='#003040';sx.lineWidth=1;sx.strokeRect(ox+3,oy-7,gd,h+14);
+      const hg=sx.createLinearGradient(ox,oy,ox,oy+h);hg.addColorStop(0,'#0a2838');hg.addColorStop(.5,'#1a4858');hg.addColorStop(1,'#0a2838');
+      sx.fillStyle=hg;sx.fillRect(ox,oy+2,17,h-4);
+      sx.strokeStyle='rgba(0,200,255,.45)';sx.lineWidth=1.2;
+      for(let i=0;i<4;i++){sx.beginPath();sx.moveTo(ox+2+i*3.5,oy+2);sx.lineTo(ox+2+i*3.5,oy+h-2);sx.stroke();}
+      break;
+    }
+  }
+  spriteCache[key]=sc;
+  return sc;
 }
 
-function smoothHand() {
-    if (rawHandLandmarks) {
-        if (handVisibilityTimeout) { clearTimeout(handVisibilityTimeout); handVisibilityTimeout = null; }
-        if (!smoothedHandLandmarks) {
-            smoothedHandLandmarks = JSON.parse(JSON.stringify(rawHandLandmarks));
-        } else {
-            for (let i = 0; i < rawHandLandmarks.length; i++) {
-                smoothedHandLandmarks[i].x = lerp(smoothedHandLandmarks[i].x, rawHandLandmarks[i].x, SMOOTHING_FACTOR);
-                smoothedHandLandmarks[i].y = lerp(smoothedHandLandmarks[i].y, rawHandLandmarks[i].y, SMOOTHING_FACTOR);
-                smoothedHandLandmarks[i].z = lerp(smoothedHandLandmarks[i].z, rawHandLandmarks[i].z, SMOOTHING_FACTOR);
-            }
-        }
-    } else if (smoothedHandLandmarks && !handVisibilityTimeout) {
-        handVisibilityTimeout = setTimeout(() => { smoothedHandLandmarks = null; handVisibilityTimeout = null; }, HAND_VISIBILITY_DELAY);
-    }
+// ═══════════════════════════════════════════════
+// TARGET SPRITE (pre-baked at current size)
+// ═══════════════════════════════════════════════
+let targetSprite=null, targetSpriteR=0;
+function getTargetSprite(r){
+  if(targetSprite&&targetSpriteR===r) return targetSprite;
+  targetSpriteR=r;
+  const sz=Math.round(r*4.5)+6;
+  const sc=document.createElement('canvas'); sc.width=sz;sc.height=sz;
+  const sx=sc.getContext('2d'), cx=sz/2, cy=sz/2;
+  const gl=sx.createRadialGradient(cx,cy,r*.4,cx,cy,r*2.2);
+  gl.addColorStop(0,'rgba(0,240,255,.22)');gl.addColorStop(.55,'rgba(0,200,255,.07)');gl.addColorStop(1,'transparent');
+  sx.fillStyle=gl;sx.beginPath();sx.arc(cx,cy,r*2.2,0,Math.PI*2);sx.fill();
+  const bg=sx.createRadialGradient(cx-r*.3,cy-r*.3,r*.08,cx,cy,r);
+  bg.addColorStop(0,'#a0ffff');bg.addColorStop(.45,'#00d0e8');bg.addColorStop(1,'#003850');
+  sx.fillStyle=bg;sx.beginPath();sx.arc(cx,cy,r,0,Math.PI*2);sx.fill();
+  sx.strokeStyle='rgba(0,240,255,.55)';sx.lineWidth=1.5;sx.beginPath();sx.arc(cx,cy,r*.55,0,Math.PI*2);sx.stroke();
+  sx.fillStyle='rgba(255,255,255,.78)';sx.beginPath();sx.arc(cx,cy,r*.14,0,Math.PI*2);sx.fill();
+  const sp=sx.createRadialGradient(cx-r*.25,cy-r*.28,0,cx-r*.25,cy-r*.28,r*.44);
+  sp.addColorStop(0,'rgba(255,255,255,.42)');sp.addColorStop(1,'transparent');
+  sx.fillStyle=sp;sx.beginPath();sx.arc(cx-r*.25,cy-r*.28,r*.44,0,Math.PI*2);sx.fill();
+  targetSprite=sc;
+  return sc;
 }
 
-function handleGrab() {
-    if (!smoothedHandLandmarks) {
-        if (isGrabbing && grabConstraint && !handLossTimeout) {
-            handLossTimeout = setTimeout(() => {
-                World.remove(engine.world, grabConstraint);
-                if (grabbedBody && canThrow) { Body.setVelocity(grabbedBody, handVelocity); playThrow(); }
-                grabConstraint = null; grabbedBody = null; isGrabbing = false; canThrow = false; canRelease = false; velocityBuffer.length = 0; handLossTimeout = null;
-            }, HAND_LOSS_DELAY);
-        }
-        return;
-    }
-
-    const thumbTip = smoothedHandLandmarks[4];
-    const indexTip = smoothedHandLandmarks[8];
-    const distance = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
-    const grabPoint = { x: (1-(thumbTip.x+indexTip.x)/2)*canvasElement.width, y: ((thumbTip.y+indexTip.y)/2)*canvasElement.height };
-
-    velocityBuffer.push({ ...grabPoint });
-    if (velocityBuffer.length > VELOCITY_BUFFER_SIZE) velocityBuffer.shift();
-
-    if (velocityBuffer.length > 1) {
-        const f = velocityBuffer[0], l = velocityBuffer[velocityBuffer.length-1];
-        const dt = velocityBuffer.length;
-        handVelocity.x = ((l.x-f.x)/dt)*THROW_MULTIPLIER;
-        handVelocity.y = ((l.y-f.y)/dt)*THROW_MULTIPLIER;
-    } else { handVelocity.x = 0; handVelocity.y = 0; }
-
-    if (distance < GRAB_THRESHOLD && !isGrabbing) {
-        const bodiesUnderPoint = Query.point(objects, grabPoint);
-        if (bodiesUnderPoint.length > 0) {
-            const bodyToGrab = bodiesUnderPoint[0];
-            isGrabbing = true; grabbedBody = bodyToGrab; canThrow = false; canRelease = false;
-            velocityBuffer.length = 0;
-            playGrab();
-            setTimeout(() => { if (isGrabbing && grabbedBody === bodyToGrab) canRelease = true; }, MIN_HOLD_DURATION);
-            setTimeout(() => { if (isGrabbing && grabbedBody === bodyToGrab) canThrow = true; }, MIN_GRAB_DURATION_FOR_THROW);
-            grabConstraint = Constraint.create({ pointA: grabPoint, bodyB: grabbedBody, stiffness: 0.9, length: 0, render: { visible: false } });
-            World.add(engine.world, grabConstraint);
-        }
-    } else if (distance >= GRAB_THRESHOLD && isGrabbing && canRelease) {
-        if (grabConstraint) {
-            World.remove(engine.world, grabConstraint);
-            if (grabbedBody && canThrow) { Body.setVelocity(grabbedBody, handVelocity); playThrow(); }
-            grabConstraint = null; grabbedBody = null; isGrabbing = false; canThrow = false; canRelease = false; velocityBuffer.length = 0;
-        }
-    }
-
-    if (isGrabbing && grabConstraint) {
-        grabConstraint.pointA = { ...grabPoint };
-        Body.setAngularVelocity(grabbedBody, 0);
-    }
+// ═══════════════════════════════════════════════
+// MOVING TARGETS UPDATE
+// ═══════════════════════════════════════════════
+function updateMovingTargets(){
+  targets.forEach(t=>{
+    if(!t.render.moving) return;
+    const r=t.render;
+    r.movePhase+=r.moveSpeed;
+    Body.setPosition(t,{x:r.moveOrigin+Math.sin(r.movePhase)*r.moveRange,y:t.position.y});
+  });
 }
 
-// ============================================================
-// RENDER OBJECTS — dramatically enhanced visuals
-// ============================================================
-function renderRealisticObjects() {
-    objects.forEach(body => {
-        const { position, angle, speed } = body;
-        const { objectType } = body.render;
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+let tPulse=0;
 
-        canvasCtx.save();
-        canvasCtx.translate(position.x, position.y);
-        canvasCtx.rotate(angle);
-
-        // Motion blur glow when fast
-        if (speed > 4) {
-            canvasCtx.shadowBlur = Math.min(speed * 3, 30);
-            canvasCtx.shadowColor = objectType === 'sphere' ? '#ff8822' : '#4499ff';
-        }
-
-        switch (objectType) {
-            case 'sphere': {
-                const r = body.render.radius;
-                // Outer glow
-                const glowGrad = canvasCtx.createRadialGradient(0, 0, r*0.5, 0, 0, r*1.6);
-                glowGrad.addColorStop(0, 'rgba(255,140,30,0.15)');
-                glowGrad.addColorStop(1, 'transparent');
-                canvasCtx.fillStyle = glowGrad;
-                canvasCtx.beginPath(); canvasCtx.arc(0, 0, r*1.6, 0, Math.PI*2); canvasCtx.fill();
-
-                // Main sphere
-                const grad = canvasCtx.createRadialGradient(-r*0.35, -r*0.35, 1, 0, 0, r);
-                grad.addColorStop(0, '#FBB86C');
-                grad.addColorStop(0.4, '#DD6B20');
-                grad.addColorStop(1, '#7B341E');
-                canvasCtx.shadowBlur = 0;
-                canvasCtx.beginPath(); canvasCtx.arc(0, 0, r, 0, Math.PI*2);
-                canvasCtx.fillStyle = grad; canvasCtx.fill();
-                // Ring highlight
-                canvasCtx.strokeStyle = 'rgba(255,200,100,0.4)'; canvasCtx.lineWidth = 1.5;
-                canvasCtx.stroke();
-                // Specular
-                const spec = canvasCtx.createRadialGradient(-r*0.3, -r*0.3, 0, -r*0.3, -r*0.3, r*0.5);
-                spec.addColorStop(0, 'rgba(255,255,255,0.55)'); spec.addColorStop(1, 'transparent');
-                canvasCtx.fillStyle = spec;
-                canvasCtx.beginPath(); canvasCtx.arc(-r*0.3, -r*0.3, r*0.5, 0, Math.PI*2); canvasCtx.fill();
-                break;
-            }
-
-            case 'wood': {
-                const w = body.render.width, h = body.render.height;
-                // Shadow
-                canvasCtx.fillStyle = 'rgba(0,0,0,0.3)';
-                canvasCtx.fillRect(-w/2+4, -h/2+4, w, h);
-                // Base wood
-                const woodGrad = canvasCtx.createLinearGradient(0, -h/2, 0, h/2);
-                woodGrad.addColorStop(0, '#C4905A');
-                woodGrad.addColorStop(0.5, '#8C6035');
-                woodGrad.addColorStop(1, '#6B4421');
-                canvasCtx.fillStyle = woodGrad;
-                canvasCtx.fillRect(-w/2, -h/2, w, h);
-                // Wood grain lines
-                canvasCtx.strokeStyle = 'rgba(60,30,0,0.35)'; canvasCtx.lineWidth = 1;
-                for (let i = 1; i < 5; i++) {
-                    const gy = -h/2 + (i/5)*h;
-                    canvasCtx.beginPath();
-                    canvasCtx.moveTo(-w/2, gy + (Math.random()-0.5)*3);
-                    canvasCtx.bezierCurveTo(-w/4, gy+2, w/4, gy-2, w/2, gy+(Math.random()-0.5)*3);
-                    canvasCtx.stroke();
-                }
-                // Edge highlight
-                canvasCtx.strokeStyle = 'rgba(220,160,80,0.4)'; canvasCtx.lineWidth = 2;
-                canvasCtx.strokeRect(-w/2+1, -h/2+1, w-2, h-2);
-                // Border
-                canvasCtx.strokeStyle = '#3D2010'; canvasCtx.lineWidth = 2.5;
-                canvasCtx.strokeRect(-w/2, -h/2, w, h);
-                break;
-            }
-
-            case 'spear': {
-                const sw = body.render.width, sh = body.render.height;
-                // Shaft glow
-                canvasCtx.shadowBlur = 6; canvasCtx.shadowColor = 'rgba(100,60,20,0.5)';
-                // Shaft
-                const shaftGrad = canvasCtx.createLinearGradient(0, -sh/2, 0, sh/2);
-                shaftGrad.addColorStop(0, '#A0724A');
-                shaftGrad.addColorStop(0.5, '#7A4F2E');
-                shaftGrad.addColorStop(1, '#5A3820');
-                canvasCtx.fillStyle = shaftGrad;
-                canvasCtx.fillRect(-sw/2, -sh/2, sw, sh);
-                // Shaft grain
-                canvasCtx.strokeStyle = 'rgba(40,20,5,0.25)'; canvasCtx.lineWidth = 1;
-                for (let i = 0; i < 3; i++) {
-                    const lx = -sw/2 + (i+1)*(sw/4);
-                    canvasCtx.beginPath(); canvasCtx.moveTo(lx, -sh/2); canvasCtx.lineTo(lx, sh/2); canvasCtx.stroke();
-                }
-                canvasCtx.shadowBlur = 0;
-                // Metal tip
-                const tipLen = 35;
-                const tipGrad = canvasCtx.createLinearGradient(sw/2-tipLen, 0, sw/2, 0);
-                tipGrad.addColorStop(0, '#718096');
-                tipGrad.addColorStop(0.5, '#E2E8F0');
-                tipGrad.addColorStop(1, '#A0AEC0');
-                canvasCtx.fillStyle = tipGrad;
-                canvasCtx.beginPath();
-                canvasCtx.moveTo(sw/2, 0);
-                canvasCtx.lineTo(sw/2-tipLen, -sh/2-5);
-                canvasCtx.lineTo(sw/2-tipLen, sh/2+5);
-                canvasCtx.closePath(); canvasCtx.fill();
-                // Tip edge glow
-                canvasCtx.shadowBlur = 8; canvasCtx.shadowColor = 'rgba(160,200,255,0.7)';
-                canvasCtx.strokeStyle = 'rgba(200,230,255,0.6)'; canvasCtx.lineWidth = 1.5;
-                canvasCtx.stroke();
-                canvasCtx.shadowBlur = 0;
-                break;
-            }
-
-            case 'sword': {
-                const sW = body.render.width, sH = body.render.height;
-                const bladeLen = sW * 0.75;
-                // Blade glow
-                canvasCtx.shadowBlur = 12; canvasCtx.shadowColor = 'rgba(150,200,255,0.5)';
-                // Blade gradient (steel)
-                const bladeGrad = canvasCtx.createLinearGradient(0, -sH/2, 0, sH/2);
-                bladeGrad.addColorStop(0, '#E8F0FF');
-                bladeGrad.addColorStop(0.3, '#8AABD4');
-                bladeGrad.addColorStop(0.5, '#E2E8F0');
-                bladeGrad.addColorStop(0.7, '#8AABD4');
-                bladeGrad.addColorStop(1, '#E8F0FF');
-                canvasCtx.fillStyle = bladeGrad;
-                canvasCtx.fillRect(-sW/2, -sH/2, bladeLen, sH);
-                // Blade tip
-                canvasCtx.beginPath();
-                canvasCtx.moveTo(-sW/2+bladeLen, -sH/2);
-                canvasCtx.lineTo(sW/2, 0);
-                canvasCtx.lineTo(-sW/2+bladeLen, sH/2);
-                canvasCtx.closePath(); canvasCtx.fill();
-                // Fuller (groove)
-                canvasCtx.strokeStyle = 'rgba(50,80,130,0.3)'; canvasCtx.lineWidth = 2;
-                canvasCtx.beginPath(); canvasCtx.moveTo(-sW/2+10, 0); canvasCtx.lineTo(-sW/2+bladeLen*0.8, 0); canvasCtx.stroke();
-                canvasCtx.shadowBlur = 0;
-                // Guard (crossguard)
-                canvasCtx.fillStyle = '#B8860B';
-                canvasCtx.fillRect(-sW/2+8, -sH/2-7, 12, sH+14);
-                canvasCtx.strokeStyle = '#8B6914'; canvasCtx.lineWidth = 1;
-                canvasCtx.strokeRect(-sW/2+8, -sH/2-7, 12, sH+14);
-                // Handle
-                const handleGrad = canvasCtx.createLinearGradient(0, -sH/2, 0, sH/2);
-                handleGrad.addColorStop(0, '#4A2E1C');
-                handleGrad.addColorStop(0.5, '#7A4F38');
-                handleGrad.addColorStop(1, '#4A2E1C');
-                canvasCtx.fillStyle = handleGrad;
-                canvasCtx.fillRect(-sW/2-2, -sH/2+2, 20, sH-4);
-                // Grip wraps
-                canvasCtx.strokeStyle = 'rgba(200,150,80,0.5)'; canvasCtx.lineWidth = 1.5;
-                for (let wi = 0; wi < 4; wi++) {
-                    const hx = -sW/2 + 2 + wi * 4;
-                    canvasCtx.beginPath(); canvasCtx.moveTo(hx, -sH/2+2); canvasCtx.lineTo(hx, sH/2-2); canvasCtx.stroke();
-                }
-                break;
-            }
-        }
-        canvasCtx.restore();
-    });
+function renderObjects(){
+  objects.forEach(b=>{
+    const {position:pos,angle,render:r}=b;
+    const w=r.width||r.radius*2, h=r.height||r.radius*2;
+    // Only skip if entirely off the bottom (fallen out)
+    if(pos.y - h > canvas.height + 20) return;
+    const sp=getSprite(r.objectType,w,h);
+    ctx.save();ctx.translate(pos.x,pos.y);ctx.rotate(angle);
+    ctx.drawImage(sp,-sp.width/2,-sp.height/2);
+    ctx.restore();
+  });
 }
 
-// ============================================================
-// RENDER TARGETS — glowing, animated
-// ============================================================
-let targetPulse = 0;
-
-function renderTargets() {
-    targetPulse += 0.05;
-    const pulseScale = 1 + Math.sin(targetPulse) * 0.08;
-
-    targets.forEach((target, idx) => {
-        const pos = target.position;
-        const radius = target.circleRadius;
-        const phaseOffset = idx * 1.2;
-        const pulse = 1 + Math.sin(targetPulse + phaseOffset) * 0.06;
-        const r = radius * pulse;
-
-        // Outer glow rings
-        for (let gi = 3; gi >= 1; gi--) {
-            const gr = r * (1 + gi * 0.4);
-            const alpha = 0.06 / gi;
-            const glowG = canvasCtx.createRadialGradient(pos.x, pos.y, r, pos.x, pos.y, gr);
-            glowG.addColorStop(0, `rgba(255,50,50,${alpha * 3})`);
-            glowG.addColorStop(1, 'transparent');
-            canvasCtx.fillStyle = glowG;
-            canvasCtx.beginPath(); canvasCtx.arc(pos.x, pos.y, gr, 0, Math.PI*2); canvasCtx.fill();
-        }
-
-        // Main body
-        const grad = canvasCtx.createRadialGradient(pos.x - r*0.3, pos.y - r*0.3, r*0.1, pos.x, pos.y, r);
-        grad.addColorStop(0, '#FF8080');
-        grad.addColorStop(0.4, '#FF3333');
-        grad.addColorStop(1, '#8B0000');
-        canvasCtx.fillStyle = grad;
-        canvasCtx.shadowBlur = 20;
-        canvasCtx.shadowColor = 'rgba(255,50,50,0.8)';
-        canvasCtx.beginPath(); canvasCtx.arc(pos.x, pos.y, r, 0, Math.PI*2);
-        canvasCtx.fill();
-
-        // Inner rings (bullseye)
-        canvasCtx.shadowBlur = 0;
-        canvasCtx.strokeStyle = 'rgba(255,180,180,0.4)'; canvasCtx.lineWidth = 1.5;
-        canvasCtx.beginPath(); canvasCtx.arc(pos.x, pos.y, r * 0.55, 0, Math.PI*2); canvasCtx.stroke();
-
-        // Center dot
-        canvasCtx.fillStyle = 'rgba(255,255,255,0.8)';
-        canvasCtx.beginPath(); canvasCtx.arc(pos.x, pos.y, r*0.2, 0, Math.PI*2); canvasCtx.fill();
-
-        // Specular
-        const spec = canvasCtx.createRadialGradient(pos.x-r*0.25, pos.y-r*0.25, 0, pos.x-r*0.25, pos.y-r*0.25, r*0.45);
-        spec.addColorStop(0, 'rgba(255,255,255,0.35)'); spec.addColorStop(1, 'transparent');
-        canvasCtx.fillStyle = spec;
-        canvasCtx.beginPath(); canvasCtx.arc(pos.x-r*0.25, pos.y-r*0.25, r*0.45, 0, Math.PI*2); canvasCtx.fill();
-
-        // Rotating scan line
-        canvasCtx.save();
-        canvasCtx.translate(pos.x, pos.y);
-        canvasCtx.rotate(targetPulse + phaseOffset);
-        canvasCtx.strokeStyle = 'rgba(255,200,200,0.25)'; canvasCtx.lineWidth = 1;
-        canvasCtx.beginPath(); canvasCtx.moveTo(0, 0); canvasCtx.lineTo(r, 0); canvasCtx.stroke();
-        canvasCtx.restore();
-    });
-    canvasCtx.shadowBlur = 0;
+function renderTargets(){
+  tPulse+=.05;
+  targets.forEach((t,i)=>{
+    const pos=t.position, r=t.render.radius;
+    const pulse=1+Math.sin(tPulse+i*1.4)*.07;
+    const rp=r*pulse;
+    const sp=getTargetSprite(r);
+    const sz=sp.width;
+    ctx.drawImage(sp,pos.x-sz/2,pos.y-sz/2);
+    // Scan arm
+    ctx.save();ctx.translate(pos.x,pos.y);ctx.rotate(tPulse*1.2+i*1.4);
+    ctx.strokeStyle=t.render.moving?'rgba(0,240,255,.6)':'rgba(0,200,220,.3)';
+    ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(rp,0);ctx.stroke();
+    ctx.restore();
+    // Moving target: dashed ring marker
+    if(t.render.moving){
+      ctx.strokeStyle='rgba(0,240,255,.5)';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);
+      ctx.beginPath();ctx.arc(pos.x,pos.y,rp+5,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    }
+  });
 }
 
-// ============================================================
-// RENDER PARTICLES — multi-color sparks
-// ============================================================
-function renderParticles() {
-    // Shockwaves
-    for (let i = shockwaves.length-1; i >= 0; i--) {
-        const sw = shockwaves[i];
-        sw.r += 6;
-        sw.alpha -= 0.05;
-        if (sw.alpha <= 0) { shockwaves.splice(i,1); continue; }
-        canvasCtx.strokeStyle = `rgba(255,200,80,${sw.alpha * 0.8})`;
-        canvasCtx.lineWidth = 2.5;
-        canvasCtx.shadowBlur = 10; canvasCtx.shadowColor = 'rgba(255,180,0,0.6)';
-        canvasCtx.beginPath(); canvasCtx.arc(sw.x, sw.y, sw.r, 0, Math.PI*2); canvasCtx.stroke();
-        canvasCtx.shadowBlur = 0;
-    }
-
-    // Particles
-    for (let i = particles.length-1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.vx; p.y += p.vy;
-        p.vy += 0.15; // gravity
-        p.vx *= 0.98;
-        p.alpha *= p.life;
-        p.radius *= 0.97;
-        if (p.alpha < 0.01 || p.radius < 0.3) { particles.splice(i,1); continue; }
-        const [r,g,b] = p.color;
-        canvasCtx.shadowBlur = p.radius * 2; canvasCtx.shadowColor = `rgba(${r},${g},${b},0.8)`;
-        canvasCtx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
-        canvasCtx.beginPath(); canvasCtx.arc(p.x, p.y, p.radius, 0, Math.PI*2); canvasCtx.fill();
-    }
-    canvasCtx.shadowBlur = 0;
+function renderParticles(){
+  // Shockwaves
+  for(let i=shockwaves.length-1;i>=0;i--){const sw=shockwaves[i];sw.r+=sw.spd;sw.a-=.045;if(sw.a<=0){shockwaves.splice(i,1);continue;}ctx.strokeStyle=`rgba(0,240,255,${(sw.a*.65).toFixed(2)})`;ctx.lineWidth=2;ctx.beginPath();ctx.arc(sw.x,sw.y,sw.r,0,Math.PI*2);ctx.stroke();}
+  // Sparks — update
+  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.14;p.vx*=.98;p.a*=p.life;p.r*=.968;if(p.a<.022||p.r<.35){particles.splice(i,1);}}
+  // Batched fill by color
+  const g={};
+  particles.forEach(p=>{const k=`${p.col[0]},${p.col[1]},${p.col[2]}`;(g[k]||(g[k]=[])).push(p);});
+  Object.entries(g).forEach(([k,ps])=>{ctx.fillStyle=`rgba(${k},.88)`;ctx.beginPath();ps.forEach(p=>{ctx.moveTo(p.x+p.r,p.y);ctx.arc(p.x,p.y,p.r,0,Math.PI*2);});ctx.fill();});
+  // Trails
+  for(let i=trails.length-1;i>=0;i--){trails[i].a-=.055;if(trails[i].a<=0)trails.splice(i,1);}
+  if(trails.length){
+    ctx.fillStyle='rgba(0,220,255,.55)';ctx.beginPath();
+    trails.forEach(t=>{ctx.moveTo(t.x+t.r,t.y);ctx.arc(t.x,t.y,t.r,0,Math.PI*2);});ctx.fill();
+  }
 }
 
-// ============================================================
-// RENDER HAND — neon glowing skeleton
-// ============================================================
-let prevGrabPoint = null;
+function renderHand(){
+  if(!smoothLM) return;
+  const W=canvas.width, H=canvas.height;
+  const th=smoothLM[4], ix=smoothLM[8];
+  const dist=Math.hypot(th.x-ix.x,th.y-ix.y);
+  const isPinch=dist<GRAB_THRESH;
+  const gp={x:(1-(th.x+ix.x)*.5)*W,y:((th.y+ix.y)*.5)*H};
 
-function renderHand() {
-    if (!smoothedHandLandmarks) return;
+  ctx.save();ctx.scale(-1,1);ctx.translate(-W,0);
+  // Glow pass
+  ctx.strokeStyle='rgba(0,240,255,.10)';ctx.lineWidth=9;ctx.lineJoin='round';ctx.lineCap='round';
+  ctx.beginPath();HAND_CONN.forEach(([a,b])=>{const la=smoothLM[a],lb=smoothLM[b];ctx.moveTo(la.x*W,la.y*H);ctx.lineTo(lb.x*W,lb.y*H);});ctx.stroke();
+  // Sharp pass
+  ctx.strokeStyle='rgba(0,240,255,.85)';ctx.lineWidth=1.8;
+  ctx.beginPath();HAND_CONN.forEach(([a,b])=>{const la=smoothLM[a],lb=smoothLM[b];ctx.moveTo(la.x*W,la.y*H);ctx.lineTo(lb.x*W,lb.y*H);});ctx.stroke();
+  // Joints
+  ctx.fillStyle='rgba(0,180,220,.85)';ctx.beginPath();
+  smoothLM.forEach((lm,i)=>{if([4,8,12,16,20].includes(i))return;ctx.moveTo(lm.x*W+2.5,lm.y*H);ctx.arc(lm.x*W,lm.y*H,2.5,0,Math.PI*2);});ctx.fill();
+  // Tips
+  ctx.fillStyle='rgba(0,240,255,1)';ctx.beginPath();
+  [4,8,12,16,20].forEach(i=>{const lm=smoothLM[i];ctx.moveTo(lm.x*W+4,lm.y*H);ctx.arc(lm.x*W,lm.y*H,4,0,Math.PI*2);});ctx.fill();
+  ctx.restore();
 
-    const thumbTip = smoothedHandLandmarks[4];
-    const indexTip = smoothedHandLandmarks[8];
-    const distance = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
-    const grabPoint = {
-        x: (1 - (thumbTip.x + indexTip.x) / 2) * canvasElement.width,
-        y: ((thumbTip.y + indexTip.y) / 2) * canvasElement.height
-    };
-    const isPinching = distance < GRAB_THRESHOLD;
+  // Cursor
+  if(isPinch){
+    ctx.strokeStyle='rgba(0,240,255,.65)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(gp.x,gp.y,18,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle='rgba(0,240,255,.22)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(gp.x,gp.y,27,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(0,240,255,.15)';
+  } else {ctx.fillStyle='rgba(0,200,255,.08)';}
+  ctx.beginPath();ctx.arc(gp.x,gp.y,14,0,Math.PI*2);ctx.fill();
 
-    // Emit trail particles from grab point
-    if (prevGrabPoint && (Math.abs(grabPoint.x - prevGrabPoint.x) > 1 || Math.abs(grabPoint.y - prevGrabPoint.y) > 1)) {
-        trailParticles.push({
-            x: grabPoint.x, y: grabPoint.y,
-            vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5,
-            r: Math.random()*3+1, alpha: 0.5,
-            color: isPinching ? [0,245,255] : [200,200,255]
-        });
-    }
-    prevGrabPoint = { ...grabPoint };
-
-    // Draw trail
-    for (let i = trailParticles.length-1; i >= 0; i--) {
-        const t = trailParticles[i];
-        t.x += t.vx; t.y += t.vy;
-        t.alpha -= 0.04;
-        if (t.alpha <= 0) { trailParticles.splice(i,1); continue; }
-        const [tr,tg,tb] = t.color;
-        canvasCtx.fillStyle = `rgba(${tr},${tg},${tb},${t.alpha})`;
-        canvasCtx.beginPath(); canvasCtx.arc(t.x, t.y, t.r, 0, Math.PI*2); canvasCtx.fill();
-    }
-
-    // Hand skeleton
-    canvasCtx.save();
-    canvasCtx.scale(-1, 1);
-    canvasCtx.translate(-canvasElement.width, 0);
-
-    // Connections
-    HAND_CONNECTIONS.forEach(([a, b]) => {
-        const la = smoothedHandLandmarks[a], lb = smoothedHandLandmarks[b];
-        const ax = la.x * canvasElement.width, ay = la.y * canvasElement.height;
-        const bx = lb.x * canvasElement.width, by = lb.y * canvasElement.height;
-        const lineGrad = canvasCtx.createLinearGradient(ax, ay, bx, by);
-        lineGrad.addColorStop(0, 'rgba(0,245,255,0.8)');
-        lineGrad.addColorStop(1, 'rgba(180,100,255,0.8)');
-        canvasCtx.strokeStyle = lineGrad;
-        canvasCtx.lineWidth = 2.5;
-        canvasCtx.shadowBlur = 8; canvasCtx.shadowColor = 'rgba(0,245,255,0.5)';
-        canvasCtx.beginPath(); canvasCtx.moveTo(ax, ay); canvasCtx.lineTo(bx, by); canvasCtx.stroke();
-    });
-
-    // Landmark dots
-    smoothedHandLandmarks.forEach((lm, idx) => {
-        const lx = lm.x * canvasElement.width, ly = lm.y * canvasElement.height;
-        const isTip = [4,8,12,16,20].includes(idx);
-        canvasCtx.beginPath();
-        canvasCtx.arc(lx, ly, isTip ? 5 : 3.5, 0, Math.PI*2);
-        canvasCtx.fillStyle = isTip ? 'rgba(0,245,255,1)' : 'rgba(200,150,255,0.9)';
-        canvasCtx.shadowBlur = isTip ? 12 : 6;
-        canvasCtx.shadowColor = isTip ? 'rgba(0,245,255,0.8)' : 'rgba(200,100,255,0.6)';
-        canvasCtx.fill();
-    });
-    canvasCtx.shadowBlur = 0;
-    canvasCtx.restore();
-
-    // Grab cursor
-    canvasCtx.shadowBlur = isPinching ? 20 : 8;
-    canvasCtx.shadowColor = isPinching ? 'rgba(0,245,255,0.9)' : 'rgba(200,200,255,0.4)';
-    if (isPinching) {
-        // Pulsing rings
-        for (let ri = 2; ri >= 0; ri--) {
-            canvasCtx.strokeStyle = `rgba(0,245,255,${0.5 - ri*0.15})`;
-            canvasCtx.lineWidth = 2;
-            canvasCtx.beginPath(); canvasCtx.arc(grabPoint.x, grabPoint.y, 15 + ri*8, 0, Math.PI*2); canvasCtx.stroke();
-        }
-        canvasCtx.fillStyle = 'rgba(0,245,255,0.25)';
-    } else {
-        canvasCtx.fillStyle = 'rgba(200,200,255,0.12)';
-    }
-    canvasCtx.beginPath(); canvasCtx.arc(grabPoint.x, grabPoint.y, 15, 0, Math.PI*2);
-    canvasCtx.fill();
-    canvasCtx.shadowBlur = 0;
-
-    // Constraint string
-    if (grabConstraint) {
-        const gx = grabConstraint.bodyB.position.x, gy = grabConstraint.bodyB.position.y;
-        const lineG = canvasCtx.createLinearGradient(grabPoint.x, grabPoint.y, gx, gy);
-        const col = canThrow ? 'rgba(50,220,120,' : 'rgba(0,245,255,';
-        lineG.addColorStop(0, col+'0.9)');
-        lineG.addColorStop(1, col+'0.3)');
-        canvasCtx.strokeStyle = lineG;
-        canvasCtx.lineWidth = canThrow ? 3 : 2;
-        canvasCtx.setLineDash([6, 4]);
-        canvasCtx.shadowBlur = 10; canvasCtx.shadowColor = canThrow ? 'rgba(50,220,120,0.5)' : 'rgba(0,245,255,0.5)';
-        canvasCtx.beginPath(); canvasCtx.moveTo(grabPoint.x, grabPoint.y); canvasCtx.lineTo(gx, gy); canvasCtx.stroke();
-        canvasCtx.setLineDash([]);
-        canvasCtx.shadowBlur = 0;
-    }
+  // Rope
+  if(grabConstraint){
+    const bx=grabConstraint.bodyB.position.x, by=grabConstraint.bodyB.position.y;
+    ctx.strokeStyle=canThrow?'rgba(0,255,180,.75)':'rgba(0,240,255,.65)';
+    ctx.lineWidth=canThrow?2.5:1.8;ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(gp.x,gp.y);ctx.lineTo(bx,by);ctx.stroke();ctx.setLineDash([]);
+  }
 }
 
-// ============================================================
-// GAME LOOP
-// ============================================================
-function gameLoop() {
-    smoothHand();
-    handleGrab();
-
-    // Clear
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
-    // Animated background
-    drawBackground();
-
-    // Copy background to game canvas (bg is on its own canvas, so just draw game content)
-    renderRealisticObjects();
-    renderTargets();
-    renderParticles();
-    renderHand();
-
-    requestAnimationFrame(gameLoop);
+// ═══════════════════════════════════════════════
+// GAME LOOP — RAF drives physics manually
+// ═══════════════════════════════════════════════
+let lastTime=0;
+function gameLoop(ts=0){
+  requestAnimationFrame(gameLoop);
+  const dt=Math.min(ts-lastTime,50); lastTime=ts;
+  smoothHand(); handleGrab();
+  if(dt>0) Engine.update(engine, dt);
+  updateMovingTargets();
+  drawBg();
+  renderObjects(); renderTargets(); renderParticles(); renderHand();
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════
 // EVENTS
-// ============================================================
-resetButton.addEventListener('click', () => {
-    ensureAudio();
-    loader.style.display = 'block';
-    winText.style.display = 'none';
-    messageOverlay.classList.remove('hidden');
-    setTimeout(() => {
-        messageOverlay.classList.add('hidden');
-        resetGame();
-    }, 400);
+// ═══════════════════════════════════════════════
+resetBtn.addEventListener('click',()=>{
+  ensureAudio();
+  ovTitle.style.display='none';spinRing.style.display='block';
+  ovMsg.textContent='Get ready…';ovSub.textContent='';
+  overlay.classList.remove('hidden');
+  setTimeout(()=>{overlay.classList.add('hidden');resetGame();},350);
 });
 
-window.addEventListener('resize', () => {
-    if (runner) Runner.stop(runner);
-    if (engine) { World.clear(engine.world); Engine.clear(engine); }
-    const oldBg = gameContainer.querySelector('canvas[data-bg]');
-    if (oldBg) oldBg.remove();
-    gridParticles.length = 0;
-    requestAnimationFrame(() => { setup(); });
+let resizeTO;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTO);
+  resizeTO=setTimeout(()=>{
+    objects.forEach(b=>World.remove(engine.world,b));
+    targets.forEach(b=>World.remove(engine.world,b));
+    objects.length=0;targets.length=0;
+    Object.keys(spriteCache).forEach(k=>delete spriteCache[k]);
+    targetSprite=null;
+    canvas.width=gameCont.clientWidth||640;
+    canvas.height=gameCont.clientHeight||360;
+    initBg();
+    if(gameActive){spawnObjects();spawnTargets();}
+  },120);
 });
 
-document.addEventListener('click', ensureAudio, { once: true });
-document.addEventListener('keydown', ensureAudio, { once: true });
+['click','touchstart','keydown'].forEach(e=>document.addEventListener(e,ensureAudio,{once:true}));
 
-// ============================================================
-// BOOTSTRAP
-// ============================================================
-let gameLoopRunning = false;
-
-// Wait for full layout paint before reading clientWidth/clientHeight
-// so the canvas pixel buffer matches the actual rendered size.
-requestAnimationFrame(() => { requestAnimationFrame(() => { setup(); }); });
-
-// MediaPipe
-const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
-hands.setOptions({ maxNumHands:1, modelComplexity:1, minDetectionConfidence:0.7, minTrackingConfidence:0.7 });
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+const hands=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.7,minTrackingConfidence:.7});
 hands.onResults(onHandResults);
 
-const camera = new Camera(videoElement, {
-    onFrame: async () => { await hands.send({ image: videoElement }); },
-    width: 1280, height: 720
+const camera=new Camera(video,{
+  onFrame:async()=>{await hands.send({image:video});},
+  width:640,height:360
 });
 
-camera.start().then(() => {
-    loader.style.display = 'none';
-    messageText.textContent = 'Ready — pinch to grab!';
-    setTimeout(() => { messageOverlay.classList.add('hidden'); }, 1500);
-}).catch(err => {
-    loader.style.display = 'none';
-    messageText.textContent = 'Camera not found or permission denied.';
-    console.error(err);
-});
-
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  setup();
+  camera.start().then(()=>{
+    spinRing.style.display='none';
+    ovMsg.textContent='Pinch to grab & throw!';
+    ovSub.textContent='Hit the 5 targets before time runs out';
+    setTimeout(()=>overlay.classList.add('hidden'),2200);
+  }).catch(()=>{
+    spinRing.style.display='none';
+    ovMsg.textContent='Camera permission needed';
+    ovSub.textContent='Allow camera access and refresh the page';
+  });
+}));
 </script>
 </body>
 </html>

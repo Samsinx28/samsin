@@ -54,10 +54,32 @@ body {
     cursor: none; /* replaced by custom cursor */
 }
 
-/* ── Accessibility: restore cursor on touch devices ── */
+/* ══════════════════════════════════════
+   PERFORMANCE — disable heavy FX on mobile
+   Touch devices get none of the animated
+   background effects that tank frame rate.
+══════════════════════════════════════ */
 @media (hover: none) and (pointer: coarse) {
-    *, *::before, *::after { cursor: auto !important; }
+    /* Kill particle canvas */
+    #particle-canvas { display: none !important; }
+
+    /* Kill hex rain */
+    .hex-rain { display: none !important; }
+
+    /* Kill cursor trail + custom cursor */
     #cursor-dot, #cursor-ring { display: none !important; }
+
+    /* Kill aurora blur (most expensive CSS on mobile GPUs) */
+    .aurora-blob { display: none !important; }
+
+    /* Kill noise repaint */
+    .noise { display: none !important; }
+
+    /* Kill grid animation — keep grid but static */
+    .grid-bg { animation: none !important; }
+
+    /* Kill scanline animation */
+    body::after { display: none !important; }
 }
 
 /* ── Scanline overlay — subtle CRT feel ── */
